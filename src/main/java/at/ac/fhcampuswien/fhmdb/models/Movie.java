@@ -16,6 +16,20 @@ public class Movie {
         this.genres = genres;
     }
 
+    @Override
+    public boolean equals(Object object){
+        if(object == null){
+            return false;
+        }
+        if (object == this){
+            return true;
+        }
+        if(!(object instanceof Movie other)){
+            return false;
+        }
+        return this.title.equals(other.title) && this.description.equals(other.description) && this.genres.equals(other.genres);
+    }
+
     public String getTitle() {
         return title;
     }
