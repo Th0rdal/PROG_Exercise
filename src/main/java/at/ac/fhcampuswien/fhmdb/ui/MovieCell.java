@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
     private final Label detail = new Label();
+    private final Label genre = new Label();
     private final VBox layout = new VBox(title, detail);
 
     @Override
@@ -28,6 +29,7 @@ public class MovieCell extends ListCell<Movie> {
                             ? movie.getDescription()
                             : "No description available"
             );
+            genre.setText(movie.getGenres().toString());
 
 
             // color scheme
