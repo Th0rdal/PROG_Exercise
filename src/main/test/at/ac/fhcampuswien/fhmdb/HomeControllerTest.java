@@ -1,14 +1,14 @@
 package at.ac.fhcampuswien.fhmdb;
 
-import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.models.SortState;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Array;
-import java.util.Arrays;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,37 +30,54 @@ class HomeControllerTest {
     }
 
     @Test
-    void movies_are_sorted_correctly_with_current_sortState_none(){
+    void sortMovies_throws_error_when_list_parameter_is_empty(){
         //GIVEN
-        homeController.initializeState();
-        homeController.sortState = SortState.NONE;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        PrintStream originalErr = System.err;
+        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
+        ObservableList<Movie> testList = FXCollections.observableArrayList();
 
         //WHEN
-        homeController.sortMovies();
+        ObservableList<Movie> functionReturn = homeController.reverseMovies(testList);
 
         //THEN
-        List<Movie> expected = Arrays.asList(
-                new Movie(
-                        "Bamboo House",
-                        "Movie about the struggle of the chinese resistance in wwII.",
-                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-                ),
+        ObservableList<Movie> expectedReturn = FXCollections.observableArrayList();
+        String expectedConsoleOutput = "Error: list to sort is empty\n";
 
-                new Movie(
-                        "Death Race 2000",
-                        "Race through the United States in the far distant future of the year 2000",
-                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-                ),
+        assertEquals(expectedConsoleOutput, outContent.toString());
+        Assertions.assertIterableEquals(expectedReturn, functionReturn);
+    }
 
-                new Movie(
-                        "Generic Movie",
-                        "The most generic movie ever made.",
-                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
-                )
-        );
-
-        assertEquals(expected, homeController.observableMovies);
+    @Test
+    void sortMovies_returns_list_reversed_when_parameter_is_given_ascending() {
 
     }
 
+    @Test
+    void sortMovies_returns_list_reversed_when_parameter_is_given_descending() {
+
     }
+
+}
+    /*List<Movie> expected = Arrays.asList(
+            new Movie(
+                    "Bamboo House",
+                    "Movie about the struggle of the chinese resistance in wwII.",
+                    Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
+            ),
+
+            new Movie(
+                    "Death Race 2000",
+                    "Race through the United States in the far distant future of the year 2000",
+                    Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
+            ),
+
+            new Movie(
+                    "Generic Movie",
+                    "The most generic movie ever made.",
+                    Arrays.asList(Genre.COMEDY, Genre.CRIME)
+            )
+    );*/
