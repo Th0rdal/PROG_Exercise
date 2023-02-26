@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.models.SortState;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -35,7 +34,13 @@ public class HomeController implements Initializable {
 
     public List<Movie> allMovies = Movie.initializeMovies();
 
-    public final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+    public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+
+    public enum SortState {
+        NONE,
+        ASCENDING,
+        DESCENDING
+    }
 
     public SortState sortState = SortState.NONE;
 
@@ -47,6 +52,11 @@ public class HomeController implements Initializable {
         movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
+        //sorting list ascending
+        observableMovies.sort(Comparator.comparing(Movie::getTitle));
+        sortState = SortState.ASCENDING;
+
+
         // TODO add genre filter items with genreComboBox.getItems().addAll(...)
         genreComboBox.setPromptText("Filter by Genre");
 
@@ -55,13 +65,7 @@ public class HomeController implements Initializable {
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
-            if(sortBtn.getText().equals("Sort (asc)")) {
-                // TODO sort observableMovies ascending
-                sortBtn.setText("Sort (desc)");
-            } else {
-                // TODO sort observableMovies descending
-                sortBtn.setText("Sort (asc)");
-            }
+            observableMovies = this.reverseMovies(observableMovies);
         });
 
     }
@@ -71,8 +75,22 @@ public class HomeController implements Initializable {
         observableMovies.addAll(allMovies);
     }
 
-    public void sortMovies(){
-        observableMovies.sort(Comparator.comparing(Movie::getTitle));
-        sortState = SortState.ASCENDING;
+    public ObservableList<Movie> reverseMovies(ObservableList<Movie> listToSort){
+        if (listToSort.size() == 0) {
+            System.out.print("Error: list to sort is empty\n");
+            return listToSort;
+        }
+        if (this.sortState == SortState.ASCENDING) {
+            FXCollections.reverse(listToSort);
+            this.sortState = SortState.DESCENDING;
+            this.sortBtn.setText("Sort (desc)");
+        }else if (this.sortState == SortState.DESCENDING) {
+            FXCollections.reverse(listToSort);
+            this.sortState = SortState.ASCENDING;
+            this.sortBtn.setText("Sort (asc)");
+        }else {
+            System.out.println("Error: sortState is " + sortState.toString());
+        }
+        return listToSort;
     }
 }
