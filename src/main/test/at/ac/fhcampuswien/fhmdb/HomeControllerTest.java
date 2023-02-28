@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +57,60 @@ class HomeControllerTest {
 
     @Test
     void sortMovies_returns_list_reversed_when_parameter_is_given_ascending() {
+        //GIVEN
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        PrintStream originalErr = System.err;
+        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
+        ObservableList<Movie> expectedList = FXCollections.observableArrayList(Arrays.asList(
+                new Movie(
+                        "Bamboo House",
+                        "Movie about the struggle of the chinese resistance in wwII.",
+                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
+                ),
+
+                new Movie(
+                        "Death Race 2000",
+                        "Race through the United States in the far distant future of the year 2000",
+                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
+                ),
+
+                new Movie(
+                        "Generic Movie",
+                        "The most generic movie ever made.",
+                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
+                )
+        )
+);
+
+        //WHEN
+        ObservableList<Movie> functionReturn = homeController.reverseMovies(expectedList);
+
+        //THEN
+        ObservableList<Movie> expectedReturn = FXCollections.observableArrayList(Arrays.asList(
+                new Movie(
+                        "Bamboo House",
+                        "Movie about the struggle of the chinese resistance in wwII.",
+                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
+                ),
+
+                new Movie(
+                        "Death Race 2000",
+                        "Race through the United States in the far distant future of the year 2000",
+                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
+                ),
+
+                new Movie(
+                        "Generic Movie",
+                        "The most generic movie ever made.",
+                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
+                )
+
+        ));
+
+        Assertions.assertIterableEquals(expectedReturn, functionReturn);
 
     }
 
