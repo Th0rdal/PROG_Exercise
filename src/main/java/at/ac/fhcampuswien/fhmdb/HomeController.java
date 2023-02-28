@@ -60,19 +60,16 @@ public class HomeController implements Initializable {
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
 
-        // TODO add genre filter items with genreComboBox.getItems().addAll(...)
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
         movieListView.setItems(filteredList);
 
-        // TODO add event handlers to buttons and call the regarding methods
         // either set event handlers in the fxml file (onAction) or add them here
         searchBtn.setOnAction(actionEvent -> {
             Predicate<Movie> filterGenre = i -> true;
             if (genreComboBox.getValue() != Genre.NONE && genreComboBox.getValue() != null) {
                 filterGenre = i -> i.getGenres().contains(genreComboBox.getValue());    //filter by genre
             }
-            System.out.println(searchField.getText());
             Predicate<Movie> filterTitle = i -> i.getTitle().toLowerCase().contains(searchField.getText().toLowerCase());
             Predicate<Movie> filterDescription = i -> i.getDescription().toLowerCase().contains(searchField.getText().toLowerCase());
             Predicate<Movie> queryFilter = filterTitle.or(filterDescription);
