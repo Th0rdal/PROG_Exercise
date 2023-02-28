@@ -7,7 +7,6 @@ import java.util.List;
 public class Movie {
     private String title;
     private String description;
-    // TODO add more properties here
     private List<Genre> genres;
 
     public Movie(String title, String description, List<Genre> genres) {
@@ -42,7 +41,6 @@ public class Movie {
 
     public static List<Movie> initializeMovies(){
         List<Movie> movies = new ArrayList<>();
-        // TODO add some dummy data here
         movies.add(new Movie(
                 "Bamboo House",
                 "Movie about the struggle of the chinese resistance in wwII.",

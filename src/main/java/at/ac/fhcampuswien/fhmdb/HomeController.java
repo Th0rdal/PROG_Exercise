@@ -8,6 +8,8 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -16,6 +18,7 @@ import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 public class HomeController implements Initializable {
     @FXML
@@ -25,7 +28,7 @@ public class HomeController implements Initializable {
     public TextField searchField;
 
     @FXML
-    public JFXListView movieListView;
+    public JFXListView movieListView = new JFXListView();
 
     @FXML
     public JFXComboBox<Genre> genreComboBox;
@@ -36,6 +39,7 @@ public class HomeController implements Initializable {
     public List<Movie> allMovies = Movie.initializeMovies();
 
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+    public FilteredList<Movie> filteredList = null;
 
     public enum SortState {
         NONE,
@@ -48,10 +52,12 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
+        filteredList = new FilteredList<>(observableMovies, null);
 
         // initialize UI stuff
-        movieListView.setItems(observableMovies);   // set data of observable list to list view
+        //movieListView.setItems(observableMovies);
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+
 
         //sorting list ascending
         observableMovies.sort(Comparator.comparing(Movie::getTitle));
@@ -61,12 +67,21 @@ public class HomeController implements Initializable {
         // TODO add genre filter items with genreComboBox.getItems().addAll(...)
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());
-        genreComboBox.setOnAction(actionEvent -> {
-            System.out.println(genreComboBox.getValue());
-        });
 
         // TODO add event handlers to buttons and call the regarding methods
         // either set event handlers in the fxml file (onAction) or add them here
+        searchBtn.setOnAction(actionEvent -> {
+
+            Predicate<Movie> filter = i -> i.getGenres().contains(genreComboBox.getValue());
+            if (genreComboBox.getValue() == Genre.NONE) {
+                filter = null;
+            }
+            filteredList.setPredicate(filter);
+            SortedList<Movie> sortedList = new SortedList<>(filteredList);
+            movieListView.setItems(sortedList);
+
+
+        });
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
