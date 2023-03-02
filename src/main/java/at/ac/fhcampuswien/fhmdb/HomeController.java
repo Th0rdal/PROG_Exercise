@@ -53,8 +53,7 @@ public class HomeController implements Initializable {
 
         //preparing the movie list
         observableMovies.addAll(allMovies); //adding movies to the list
-        observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
-        sortState = SortState.ASCENDING;
+        this.sortMovies();
 
         // initialize UI stuff
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
@@ -66,45 +65,44 @@ public class HomeController implements Initializable {
 
         // either set event handlers in the fxml file (onAction) or add them here
         searchBtn.setOnAction(actionEvent -> {
-            Predicate<Movie> filterGenre = i -> true;
-            if (genreComboBox.getValue() != Genre.NONE && genreComboBox.getValue() != null) {
-                filterGenre = i -> i.getGenres().contains(genreComboBox.getValue());    //filter by genre
-            }
-            Predicate<Movie> filterTitle = i -> i.getTitle().toLowerCase().contains(searchField.getText().toLowerCase());
-            Predicate<Movie> filterDescription = i -> i.getDescription().toLowerCase().contains(searchField.getText().toLowerCase());
-            Predicate<Movie> queryFilter = filterTitle.or(filterDescription);
-            Predicate<Movie> filter = queryFilter.and(filterGenre);
-            filteredList.setPredicate(filter);
+            this.filterMovies();
         });
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
-            observableMovies = this.reverseMovies(observableMovies);
+            this.reverseMovies();
         });
 
     }
 
-    public void initializeState(){
-        observableMovies.clear();
-        observableMovies.addAll(allMovies);
+    public void sortMovies() {
+        observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
+        sortState = SortState.ASCENDING;
     }
 
-    public ObservableList<Movie> reverseMovies(ObservableList<Movie> listToSort){
-        if (listToSort.size() == 0) {
-            System.out.print("Error: list to sort is empty\n");
-            return listToSort;
-        }
+    public void reverseMovies(){
         if (this.sortState == SortState.ASCENDING) {
-            FXCollections.reverse(listToSort);
+            FXCollections.reverse(observableMovies);
             this.sortState = SortState.DESCENDING;
             this.sortBtn.setText("Sort (desc)");
         }else if (this.sortState == SortState.DESCENDING) {
-            FXCollections.reverse(listToSort);
+            FXCollections.reverse(observableMovies);
             this.sortState = SortState.ASCENDING;
             this.sortBtn.setText("Sort (asc)");
         }else {
             System.out.println("Error: sortState is " + sortState.toString());
         }
-        return listToSort;
+    }
+
+    public void filterMovies() {
+        Predicate<Movie> filterGenre = i -> true;
+        if (genreComboBox.getValue() != Genre.NONE && genreComboBox.getValue() != null) {
+            filterGenre = i -> i.getGenres().contains(genreComboBox.getValue());    //filter by genre
+        }
+        Predicate<Movie> filterTitle = i -> i.getTitle().toLowerCase().contains(searchField.getText().toLowerCase());
+        Predicate<Movie> filterDescription = i -> i.getDescription().toLowerCase().contains(searchField.getText().toLowerCase());
+        Predicate<Movie> queryFilter = filterTitle.or(filterDescription);
+        Predicate<Movie> filter = queryFilter.and(filterGenre);
+        filteredList.setPredicate(filter);
     }
 }

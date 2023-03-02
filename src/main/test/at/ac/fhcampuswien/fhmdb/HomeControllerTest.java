@@ -1,179 +1,83 @@
 package at.ac.fhcampuswien.fhmdb;
 
-import at.ac.fhcampuswien.fhmdb.models.*;
+import at.ac.fhcampuswien.fhmdb.models.Movie;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.input.MouseButton;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testfx.api.FxRobot;
+import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.framework.junit5.Start;
+
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Arrays;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@ExtendWith(ApplicationExtension.class)
 class HomeControllerTest {
 
-    private static HomeController homeController;
-
-    @BeforeAll
-    static void inti(){ homeController = new HomeController(); }
-
-    @Test
-    void movies_and_observableMovies_are_equal(){
-
-        //GIVEN
-        homeController.initializeState();
-
-        //WHEN + THEN
-        assertEquals(homeController.allMovies, homeController.observableMovies);
+    @Start
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(HomeControllerTest.class.getResource("home-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 890, 620);
+        scene.getStylesheets().add(Objects.requireNonNull(HomeControllerTest.class.getResource("styles.css")).toExternalForm());
+        stage.setTitle("FHMDb");
+        stage.setScene(scene);
+        stage.show();
     }
 
     @Test
-    void sortMovies_throws_error_when_list_parameter_is_empty(){
-        //GIVEN
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        PrintStream originalErr = System.err;
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
-        ObservableList<Movie> testList = FXCollections.observableArrayList();
-        homeController.sortState = HomeController.SortState.ASCENDING;
-
-        //WHEN
-        ObservableList<Movie> functionReturn = homeController.reverseMovies(testList);
-
-        //THEN
-        ObservableList<Movie> expectedReturn = FXCollections.observableArrayList();
-        String expectedConsoleOutput = "Error: list to sort is empty\n";
-
-        assertEquals(expectedConsoleOutput, outContent.toString());
-        assertEquals(expectedReturn, functionReturn);
+    void sortMovies_sorts_movies_ascending() {
+        //TODO write test case
     }
 
     @Test
-    void sortMovies_returns_list_reversed_when_parameter_is_given_ascending() {
-        //GIVEN
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        PrintStream originalErr = System.err;
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
-        ObservableList<Movie> expectedList = FXCollections.observableArrayList(Arrays.asList(
-                new Movie(
-                        "Bamboo House",
-                        "Movie about the struggle of the chinese resistance in wwII.",
-                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-                ),
-
-                new Movie(
-                        "Death Race 2000",
-                        "Race through the United States in the far distant future of the year 2000",
-                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-                ),
-
-                new Movie(
-                        "Generic Movie",
-                        "The most generic movie ever made.",
-                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
-                )
-        )
-);
-
-        //WHEN
-        ObservableList<Movie> functionReturn = homeController.reverseMovies(expectedList);
-
-        //THEN
-        ObservableList<Movie> expectedReturn = FXCollections.observableArrayList(Arrays.asList(
-                new Movie(
-                        "Bamboo House",
-                        "Movie about the struggle of the chinese resistance in wwII.",
-                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-                ),
-
-                new Movie(
-                        "Death Race 2000",
-                        "Race through the United States in the far distant future of the year 2000",
-                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-                ),
-
-                new Movie(
-                        "Generic Movie",
-                        "The most generic movie ever made.",
-                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
-                )
-
-        ));
-
-        Assertions.assertIterableEquals(expectedReturn, functionReturn);
-
+    void reverseMovies_reverses_list_when_sortButton_pressed_asc_to_desc() {
+        //TODO write test case
     }
 
     @Test
-    void sortMovies_returns_list_reversed_when_parameter_is_given_descending() {
-
+    void reverseMovies_reverses_list_when_sortButton_pressed_desc_to_asc() {
+        //TODO write test case
     }
 
     @Test
-    void sortMovies_throws_error_when_sortState_is_not_ASCENDING_or_DESCENDING() {
-        //GIVEN
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        PrintStream originalErr = System.err;
-        System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
-        ObservableList<Movie> testList = FXCollections.observableArrayList(Arrays.asList(
-                new Movie(
-                        "Bamboo House",
-                        "Movie about the struggle of the chinese resistance in wwII.",
-                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-                ),
-
-                new Movie(
-                        "Death Race 2000",
-                        "Race through the United States in the far distant future of the year 2000",
-                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-                ),
-
-                new Movie(
-                        "Generic Movie",
-                        "The most generic movie ever made.",
-                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
-                )));
-        homeController.sortState = HomeController.SortState.NONE;
-
-        //WHEN
-        ObservableList<Movie> reverseMoviesReturn = homeController.reverseMovies(testList);
-
-        //THEN
-        ObservableList<Movie> expectedReturn = FXCollections.observableArrayList(Arrays.asList(
-                new Movie(
-                        "Bamboo House",
-                        "Movie about the struggle of the chinese resistance in wwII.",
-                        Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-                ),
-
-                new Movie(
-                        "Death Race 2000",
-                        "Race through the United States in the far distant future of the year 2000",
-                        Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-                ),
-
-                new Movie(
-                        "Generic Movie",
-                        "The most generic movie ever made.",
-                        Arrays.asList(Genre.COMEDY, Genre.CRIME)
-                )));
-        String expectedConsoleOutput = "Error: sortState is " + homeController.sortState.toString() + System.lineSeparator();
-        assertEquals(expectedConsoleOutput, outContent.toString());
-        assertEquals(expectedReturn, reverseMoviesReturn);
+    void reverseMovies_throws_error_when_sortState_is_not_ASCENDING_or_DESCENDING() {
+        //TODO write test case
     }
+
+    @Test
+    void filterMovies_filters_out_all_movies_without_the_selected_genre() {
+        //TODO write test case
+    }
+
+    @Test
+    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_title() {
+        //TODO write test case
+    }
+
+    @Test
+    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_description() {
+        //TODO write test case
+    }
+
+    @Test
+    void filterMovies_only_shows_filtered_movies() {
+        //TODO write test case
+    }
+
+    @Test
+    void filteredMovies_shows_whole_movieList_when_all_filters_are_removed() {
+        //Todo write test case
+    }
+
 
 }
     /*List<Movie> expected = Arrays.asList(
