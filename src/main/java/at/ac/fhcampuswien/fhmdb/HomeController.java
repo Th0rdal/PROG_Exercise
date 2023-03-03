@@ -52,7 +52,7 @@ public class HomeController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         //preparing the movie list
-        observableMovies.addAll(allMovies); //adding movies to the list
+        this.initializeMovies(null);
         this.sortMovies();
 
         // initialize UI stuff
@@ -73,6 +73,14 @@ public class HomeController implements Initializable {
             this.reverseMovies();
         });
 
+    }
+
+    public void initializeMovies(ObservableList<Movie> movieList) {
+        if (movieList == null) {
+            observableMovies.setAll(Movie.initializeMovies());
+            return;
+        }
+        observableMovies.setAll(movieList);
     }
 
     public void sortMovies() {
@@ -105,4 +113,5 @@ public class HomeController implements Initializable {
         Predicate<Movie> filter = queryFilter.and(filterGenre);
         filteredList.setPredicate(filter);
     }
+
 }
