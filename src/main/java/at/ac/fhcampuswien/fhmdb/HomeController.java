@@ -61,7 +61,7 @@ public class HomeController implements Initializable {
 
         //genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
-        genreComboBox.getSelectionModel().selectFirst();
+        genreComboBox.getSelectionModel().select(Genre.NONE);
         movieListView.setItems(filteredList);
 
         // either set event handlers in the fxml file (onAction) or add them here

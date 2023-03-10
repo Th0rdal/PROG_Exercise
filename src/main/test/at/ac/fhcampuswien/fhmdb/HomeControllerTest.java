@@ -116,29 +116,93 @@ class HomeControllerTest extends ApplicationTest {
     }
 
     @Test
-    void filterMovies_filters_out_all_movies_without_the_selected_genre() {
-        //TODO write test case
+    void filterMovies_filters_out_all_movies_without_the_selected_genre() throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(startList);
+            this.homeController.genreComboBox.getSelectionModel().select(Genre.ACTION);
+        });
 
+        //WHEN
+        Platform.runLater(() -> {
+            this.homeController.filterMovies();
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        expected.add(this.testList.get(1));
+        Assertions.assertIterableEquals(expected, this.homeController.filteredList);
     }
 
     @Test
-    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_title() {
-        //TODO write test case
+    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_title() throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(startList);
+            this.homeController.searchField.setText("Bamboo");
+        });
+
+        //WHEN
+        Platform.runLater(() -> {
+            this.homeController.filterMovies();
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        expected.add(this.testList.get(0));
+        Assertions.assertIterableEquals(expected, this.homeController.filteredList);
     }
 
     @Test
-    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_description() {
-        //TODO write test case
+    void filterMovies_filters_out_all_movies_without_the_textBox_term_in_description() throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(startList);
+            this.homeController.searchField.setText("most");
+        });
+
+        //WHEN
+        Platform.runLater(() -> {
+            this.homeController.filterMovies();
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        expected.add(this.testList.get(2));
+        Assertions.assertIterableEquals(expected, this.homeController.filteredList);
     }
 
     @Test
-    void filterMovies_only_shows_filtered_movies() {
-        //TODO write test case
-    }
+    void filteredMovies_shows_whole_movieList_when_all_filters_are_removed() throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(startList);
+            this.homeController.searchField.setText("in");
+            this.homeController.genreComboBox.getSelectionModel().select(Genre.ACTION);
+            this.homeController.filterMovies();
+        });
 
-    @Test
-    void filteredMovies_shows_whole_movieList_when_all_filters_are_removed() {
-        //Todo write test case
+        //WHEN
+        Platform.runLater(() -> {
+            this.homeController.searchField.setText("");
+            this.homeController.genreComboBox.getSelectionModel().select(Genre.NONE);
+            this.homeController.filterMovies();
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        Assertions.assertIterableEquals(startList, this.homeController.filteredList);
     }
 
     //JavaFx based test cases
@@ -152,7 +216,6 @@ class HomeControllerTest extends ApplicationTest {
             this.homeController.initializeMovies(startList);
         });
         HomeControllerTest.waitForRunLater();
-        robot.clickOn("#sortBtn");
 
         //WHEN
         robot.clickOn("#sortBtn");
@@ -173,6 +236,7 @@ class HomeControllerTest extends ApplicationTest {
             this.homeController.initializeMovies(startList);
         });
         HomeControllerTest.waitForRunLater();
+        robot.clickOn("#sortBtn");
 
         //WHEN
         robot.clickOn("#sortBtn");
@@ -293,8 +357,5 @@ class HomeControllerTest extends ApplicationTest {
 }
 
 /*
-erstelle eine unsortierte list
-übergebe die unsortierte liste der funktion
-ich erstelle eine 2 liste, die die erste liste in sortiert ist
-ich verlgeiche die zurückgegebene liste mit der per hand ersetllten liste
- */
+
+*/
