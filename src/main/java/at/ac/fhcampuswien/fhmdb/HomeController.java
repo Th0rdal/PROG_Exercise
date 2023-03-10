@@ -59,8 +59,9 @@ public class HomeController implements Initializable {
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
 
-        genreComboBox.setPromptText("Filter by Genre");
+        //genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
+        genreComboBox.getSelectionModel().selectFirst();
         movieListView.setItems(filteredList);
 
         // either set event handlers in the fxml file (onAction) or add them here

@@ -16,17 +16,15 @@ public class Movie {
     }
 
     @Override  // Methode die zwei Filme vergeleicht.
-    public boolean equals(Object object){
-        if(object == null){
+    public boolean equals(Object o){
+        if(o == null){
             return false;
         }
-        if (object == this){
+        if (o == this){
             return true;
         }
-        if(!(object instanceof Movie other)){
-            return false;
-        }
-        return this.title.equals(other.title) && this.description.equals(other.description) && this.genres.equals(other.genres);
+        Movie movie = (Movie) o;
+        return this.title.equals(movie.title) && this.description.equals(movie.description) && this.genres.equals(movie.genres);
     }
 
     public String getTitle() {

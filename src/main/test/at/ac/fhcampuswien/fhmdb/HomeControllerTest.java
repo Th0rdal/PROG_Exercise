@@ -20,6 +20,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,19 +49,24 @@ class HomeControllerTest extends ApplicationTest {
     );
 
     HomeController homeController = null;
-
+    Stage stage = null;
     @Start
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HomeControllerTest.class.getResource("home-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 890, 620);
         this.homeController = fxmlLoader.getController();
         scene.getStylesheets().add(Objects.requireNonNull(HomeControllerTest.class.getResource("styles.css")).toExternalForm());
-        stage.setTitle("FHMDb");
-        stage.setScene(scene);
-        stage.show();
+        this.stage = stage;
+        this.stage.setTitle("FHMDb");
+        this.stage.setScene(scene);
     }
 
 
+    private static void waitForRunLater() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        Platform.runLater(semaphore::release);
+        semaphore.acquire();
+    }
     //method test cases
     @Test
     void initializeMovies_fills_viewList_with_Movie_data_when_parameter_null() {
@@ -71,15 +78,13 @@ class HomeControllerTest extends ApplicationTest {
         //TODO write test case
     }
     @Test
-    void sortMovies_sorts_movies_ascending() {
-        //TODO write test case
-
+    void sortMovies_sorts_movies_ascending() throws InterruptedException {
         // given
         ObservableList<Movie> sortingListAscending = FXCollections.observableArrayList(); // Erstellen einer leeren Liste (Liste von oben)
 
         ObservableList<Movie> startList = FXCollections.observableArrayList();// Erstellen einer zweiten Liste die wir manuel Befüllen
         startList.add(this.testList.get(2));
-       // startList.add(this.testList.get(0));
+        startList.add(this.testList.get(0));
         startList.add(this.testList.get(1));
 
         // when
@@ -88,11 +93,10 @@ class HomeControllerTest extends ApplicationTest {
             this.homeController.initializeMovies(startList); //?
             this.homeController.sortMovies();
         });
+        HomeControllerTest.waitForRunLater();
+
         // then
         sortingListAscending.addAll(this.homeController.observableMovies);
-        for (Movie m: sortingListAscending){
-            System.out.println(m.getTitle());
-        }
         Assertions.assertIterableEquals(sortingListAscending,this.testList); //Vergleich
     }
 
@@ -139,13 +143,16 @@ class HomeControllerTest extends ApplicationTest {
 
     //JavaFx based test cases
     @Test
-    void ui_reverses_when_sortBtn_is_pressed_asc_to_desc(FxRobot robot){
+    void ui_reverses_when_sortBtn_is_pressed_asc_to_desc(FxRobot robot) throws InterruptedException {
         //GIVEN
         ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
         Platform.runLater(() -> {
-            startList.addAll(this.testList);
+            this.stage.show();
             this.homeController.initializeMovies(startList);
         });
+        HomeControllerTest.waitForRunLater();
+        robot.clickOn("#sortBtn");
 
         //WHEN
         robot.clickOn("#sortBtn");
@@ -157,36 +164,137 @@ class HomeControllerTest extends ApplicationTest {
     }
 
     @Test
-    void ui_reverses_when_sortBtn_is_pressed_desc_to_asc(FxRobot robot){
+    void ui_reverses_when_sortBtn_is_pressed_desc_to_asc(FxRobot robot) throws InterruptedException {
         //GIVEN
-        robot.clickOn("#sortBtn");
         ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
         Platform.runLater(() -> {
-            startList.addAll(this.testList);
+            this.stage.show();
             this.homeController.initializeMovies(startList);
         });
+        HomeControllerTest.waitForRunLater();
 
         //WHEN
         robot.clickOn("#sortBtn");
 
         //THEN
-        FXCollections.reverse(startList);
         ObservableList<Object> receivedList = robot.lookup("#movieListView").queryListView().getItems();
         Assertions.assertIterableEquals(startList, receivedList);
     }
 
     @Test
-    void ui_filters_movies_when_genre_is_selected(FxRobot robot) {
-        //TODO write test case
+    void ui_filters_movies_when_genre_is_selected(FxRobot robot) throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.stage.show();
+            this.homeController.initializeMovies(startList);
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN
+        robot.clickOn("#genreComboBox");
+        robot.moveBy(0.0, 100.0);
+        robot.rightClickOn();
+        robot.clickOn("#searchBtn");
+
+        //THEN
+        Genre selectedGenre = (Genre) robot.lookup("#genreComboBox").queryComboBox().getValue();
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        for (Movie movie: startList) {
+            if (movie.getGenres().contains(selectedGenre)) {
+                expected.add(movie);
+            }
+        }
+        ObservableList<Object> receivedList = robot.lookup("#movieListView").queryListView().getItems();
+        Assertions.assertIterableEquals(expected, receivedList);
     }
 
     @Test
-    void ui_filters_movies_when_searchString_is_entered(FxRobot robot) {
-        //TODO write test case
+    void ui_filters_movies_when_searchString_is_entered(FxRobot robot) throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.stage.show();
+            this.homeController.initializeMovies(startList);
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN
+        robot.clickOn("#searchField");
+        robot.write("Bamboo");
+        robot.clickOn("#searchBtn");
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        expected.add(this.testList.get(0));
+        ObservableList<Object> receivedList = robot.lookup("#movieListView").queryListView().getItems();
+        Assertions.assertIterableEquals(expected, receivedList);
     }
 
     @Test
-    void ui_filters_movies_when_searchString_is_entered_and_genre_selected(FxRobot robot) {
-        //TODO write test case
+    void ui_filters_movies_when_searchString_is_entered_and_genre_selected(FxRobot robot) throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.stage.show();
+            this.homeController.initializeMovies(startList);
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN
+        robot.clickOn("#searchField");
+        robot.write("in");
+        robot.clickOn("#genreComboBox");
+        robot.moveBy(0.0, 100.0);
+        robot.rightClickOn();
+        robot.clickOn("#searchBtn");
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList();
+        expected.add(this.testList.get(1));
+        ObservableList<Object> receivedList = robot.lookup("#movieListView").queryListView().getItems();
+        Assertions.assertIterableEquals(expected, receivedList);
+    }
+
+    @Test
+    void ui_shows_all_movies_after_all_filters_are_removed(FxRobot robot) throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> startList = FXCollections.observableArrayList();
+        startList.addAll(this.testList);
+        Platform.runLater(() -> {
+            this.stage.show();
+            this.homeController.initializeMovies(startList);
+        });
+        HomeControllerTest.waitForRunLater();
+        robot.clickOn("#searchField");
+        robot.write("in");
+        robot.clickOn("#genreComboBox");
+        robot.moveBy(0.0, 100.0);
+        robot.rightClickOn();
+        robot.clickOn("#searchBtn");
+
+        //WHEN
+        robot.clickOn("#genreComboBox");
+        robot.moveBy(0.0, 20.0);
+        robot.rightClickOn();
+        robot.clickOn("#searchField");
+        robot.eraseText(2);
+        robot.clickOn("#searchBtn");
+
+        //THEN
+        ObservableList<Object> receivedList = robot.lookup("#movieListView").queryListView().getItems();
+        Assertions.assertIterableEquals(startList, receivedList);
+
     }
 }
+
+/*
+erstelle eine unsortierte list
+übergebe die unsortierte liste der funktion
+ich erstelle eine 2 liste, die die erste liste in sortiert ist
+ich verlgeiche die zurückgegebene liste mit der per hand ersetllten liste
+ */
