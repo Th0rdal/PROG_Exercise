@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,8 +19,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
 class HomeControllerTest extends ApplicationTest {
@@ -71,6 +73,27 @@ class HomeControllerTest extends ApplicationTest {
     @Test
     void sortMovies_sorts_movies_ascending() {
         //TODO write test case
+
+        // given
+        ObservableList<Movie> sortingListAscending = FXCollections.observableArrayList(); // Erstellen einer leeren Liste (Liste von oben)
+
+        ObservableList<Movie> startList = FXCollections.observableArrayList();// Erstellen einer zweiten Liste die wir manuel Befüllen
+        startList.add(this.testList.get(2));
+       // startList.add(this.testList.get(0));
+        startList.add(this.testList.get(1));
+
+        // when
+        //Java Fx Code
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(startList); //?
+            this.homeController.sortMovies();
+        });
+        // then
+        sortingListAscending.addAll(this.homeController.observableMovies);
+        for (Movie m: sortingListAscending){
+            System.out.println(m.getTitle());
+        }
+        Assertions.assertIterableEquals(sortingListAscending,this.testList); //Vergleich
     }
 
     @Test
