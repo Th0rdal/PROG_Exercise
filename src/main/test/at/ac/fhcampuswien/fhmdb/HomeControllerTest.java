@@ -23,7 +23,9 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Arrays.setAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ApplicationExtension.class)
 class HomeControllerTest extends ApplicationTest {
@@ -69,13 +71,34 @@ class HomeControllerTest extends ApplicationTest {
     }
     //method test cases
     @Test
-    void initializeMovies_fills_viewList_with_Movie_data_when_parameter_null() {
+    void initializeMovies_fills_viewList_with_Movie_data_when_parameter_null() throws InterruptedException {
         //TODO write test case
+        //given
+        ObservableList<Movie> listNull = FXCollections.observableArrayList();
+        listNull.addAll(Movie.initializeMovies());
+        // listNull.remove(0); Um zu schauen ob der Test klappt.
+
+        //when
+        Platform.runLater(()->{
+            this.homeController.initializeMovies(null);
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //then
+        for(int i =0; i < listNull.size();i++) {
+            assertTrue(this.homeController.observableMovies.get(i).equals(listNull.get(i)));
+        }
+
     }
 
     @Test
     void initializeMovies_fills_viewList_with_moviesList_given_as_parameter() {
         //TODO write test case
+        //given
+
+        //when
+
+        //then
     }
     @Test
     void sortMovies_sorts_movies_ascending() throws InterruptedException {
