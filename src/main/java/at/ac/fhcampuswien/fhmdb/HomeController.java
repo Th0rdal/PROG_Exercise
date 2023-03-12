@@ -15,7 +15,6 @@ import javafx.scene.control.TextField;
 
 import java.net.URL;
 import java.util.Comparator;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -34,8 +33,6 @@ public class HomeController implements Initializable {
 
     @FXML
     public JFXButton sortBtn;
-
-    public List<Movie> allMovies = Movie.initializeMovies();
 
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
     public FilteredList<Movie> filteredList = new FilteredList<>(observableMovies, null);
@@ -65,14 +62,10 @@ public class HomeController implements Initializable {
         movieListView.setItems(filteredList);
 
         // either set event handlers in the fxml file (onAction) or add them here
-        searchBtn.setOnAction(actionEvent -> {
-            this.filterMovies();
-        });
+        searchBtn.setOnAction(actionEvent -> this.filterMovies());
 
         // Sort button example:
-        sortBtn.setOnAction(actionEvent -> {
-            this.reverseMovies();
-        });
+        sortBtn.setOnAction(actionEvent -> this.reverseMovies());
 
     }
 
@@ -99,7 +92,7 @@ public class HomeController implements Initializable {
             this.sortState = SortState.ASCENDING;
             this.sortBtn.setText("Sort (asc)");
         }else {
-            System.out.println("Error: sortState is " + sortState.toString());
+            throw new UnexpectedSortStateException("Error: sortState is \"" + sortState.toString() + "\"! Expected \"ASCENDING\" or \"DESCENDING\"!");
         }
     }
 
@@ -115,4 +108,10 @@ public class HomeController implements Initializable {
         filteredList.setPredicate(filter);
     }
 
+}
+
+class UnexpectedSortStateException extends RuntimeException {
+    public UnexpectedSortStateException(String message) {
+        super(message);
+    }
 }

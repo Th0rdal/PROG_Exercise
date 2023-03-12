@@ -6,7 +6,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +20,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
-import static java.util.Arrays.setAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ApplicationExtension.class)
 class HomeControllerTest extends ApplicationTest {
@@ -74,21 +70,18 @@ class HomeControllerTest extends ApplicationTest {
     //method test cases
     @Test
     void initializeMovies_fills_viewList_with_Movie_data_when_parameter_null() throws InterruptedException {
-        //TODO write test case
         //given
         ObservableList<Movie> listNull = FXCollections.observableArrayList();
         listNull.addAll(Movie.initializeMovies());
         // listNull.remove(0); Um zu schauen ob der Test klappt.
 
         //when
-        Platform.runLater(()->{
-            this.homeController.initializeMovies(null);
-        });
+        Platform.runLater(()-> this.homeController.initializeMovies(null));
         HomeControllerTest.waitForRunLater();
 
         //then
         for(int i =0; i < listNull.size();i++) {
-            assertTrue(this.homeController.observableMovies.get(i).equals(listNull.get(i)));
+            assertEquals(this.homeController.observableMovies.get(i), listNull.get(i));
         }
 
     }
@@ -136,18 +129,80 @@ class HomeControllerTest extends ApplicationTest {
     }
 
     @Test
-    void reverseMovies_reverses_list_when_sortButton_pressed_asc_to_desc() {
-        //TODO write test case
+    void reverseMovies_reverses_list_when_sortButton_pressed_asc_to_desc() throws InterruptedException {
+        //GIVEN
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(this.testList);
+            this.homeController.sortMovies();
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN
+        Platform.runLater(() -> this.homeController.reverseMovies());
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        ObservableList<Movie> expected = FXCollections.observableArrayList(
+            new Movie(
+                    "Generic Movie",
+                    "The most generic movie ever made.",
+                    Arrays.asList(Genre.COMEDY, Genre.CRIME)
+            ),
+            new Movie(
+                    "Death Race 2000",
+                    "Race through the United States in the far distant future of the year 2000",
+                    Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
+            ),
+            new Movie(
+                    "Bamboo House",
+                    "Movie about the struggle of the chinese resistance in wwII.",
+                    Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
+            ));
+        Assertions.assertIterableEquals(expected, this.homeController.observableMovies);
     }
 
     @Test
-    void reverseMovies_reverses_list_when_sortButton_pressed_desc_to_asc() {
-        //TODO write test case
+    void reverseMovies_reverses_list_when_sortButton_pressed_desc_to_asc() throws InterruptedException {
+        //GIVEN
+        ObservableList<Movie> testList = FXCollections.observableArrayList(
+            new Movie(
+                "Generic Movie",
+                "The most generic movie ever made.",
+                Arrays.asList(Genre.COMEDY, Genre.CRIME)
+        ),
+            new Movie(
+                "Death Race 2000",
+                "Race through the United States in the far distant future of the year 2000",
+                Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
+        ),
+            new Movie(
+                "Bamboo House",
+                "Movie about the struggle of the chinese resistance in wwII.",
+                Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
+        ));
+        Platform.runLater(() -> this.homeController.initializeMovies(testList));
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN
+        Platform.runLater(() -> this.homeController.reverseMovies());
+        HomeControllerTest.waitForRunLater();
+
+        //THEN
+        Assertions.assertIterableEquals(this.testList, this.homeController.observableMovies);
     }
 
     @Test
-    void reverseMovies_throws_error_when_sortState_is_not_ASCENDING_or_DESCENDING() {
-        //TODO write test case
+    void reverseMovies_throws_error_when_sortState_is_not_ASCENDING_or_DESCENDING() throws InterruptedException {
+        //GIVEN
+        Platform.runLater(() -> {
+            this.homeController.initializeMovies(null);
+            this.homeController.sortState = HomeController.SortState.NONE;
+        });
+        HomeControllerTest.waitForRunLater();
+
+        //WHEN THEN
+        Platform.runLater(() -> assertThrows(UnexpectedSortStateException.class, () -> this.homeController.reverseMovies()));
+        HomeControllerTest.waitForRunLater();
     }
 
     @Test
@@ -161,9 +216,7 @@ class HomeControllerTest extends ApplicationTest {
         });
 
         //WHEN
-        Platform.runLater(() -> {
-            this.homeController.filterMovies();
-        });
+        Platform.runLater(() -> this.homeController.filterMovies());
         HomeControllerTest.waitForRunLater();
 
         //THEN
@@ -183,9 +236,7 @@ class HomeControllerTest extends ApplicationTest {
         });
 
         //WHEN
-        Platform.runLater(() -> {
-            this.homeController.filterMovies();
-        });
+        Platform.runLater(() -> this.homeController.filterMovies());
         HomeControllerTest.waitForRunLater();
 
         //THEN
@@ -205,9 +256,7 @@ class HomeControllerTest extends ApplicationTest {
         });
 
         //WHEN
-        Platform.runLater(() -> {
-            this.homeController.filterMovies();
-        });
+        Platform.runLater(() -> this.homeController.filterMovies());
         HomeControllerTest.waitForRunLater();
 
         //THEN
