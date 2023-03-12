@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
@@ -7,13 +8,15 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
-import java.util.List;
+import java.util.Comparator;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 public class HomeController implements Initializable {
     @FXML
@@ -26,40 +29,89 @@ public class HomeController implements Initializable {
     public JFXListView movieListView;
 
     @FXML
-    public JFXComboBox genreComboBox;
+    public JFXComboBox<Genre> genreComboBox;
 
     @FXML
     public JFXButton sortBtn;
 
-    public List<Movie> allMovies = Movie.initializeMovies();
+    public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+    public FilteredList<Movie> filteredList = new FilteredList<>(observableMovies, null);
 
-    private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+    public enum SortState {
+        NONE,
+        ASCENDING,
+        DESCENDING
+    }
+
+    public SortState sortState = SortState.NONE;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        observableMovies.addAll(allMovies);         // add dummy data to observable list
+
+        //preparing the movie list
+        this.initializeMovies(null);
+        this.sortMovies();
 
         // initialize UI stuff
-        movieListView.setItems(observableMovies);   // set data of observable list to list view
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
 
-        // TODO add genre filter items with genreComboBox.getItems().addAll(...)
-        genreComboBox.setPromptText("Filter by Genre");
 
-        // TODO add event handlers to buttons and call the regarding methods
+        //genreComboBox.setPromptText("Filter by Genre");
+        genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
+        genreComboBox.getSelectionModel().select(Genre.NONE);
+        movieListView.setItems(filteredList);
+
         // either set event handlers in the fxml file (onAction) or add them here
+        searchBtn.setOnAction(actionEvent -> this.filterMovies());
 
         // Sort button example:
-        sortBtn.setOnAction(actionEvent -> {
-            if(sortBtn.getText().equals("Sort (asc)")) {
-                // TODO sort observableMovies ascending
-                sortBtn.setText("Sort (desc)");
-            } else {
-                // TODO sort observableMovies descending
-                sortBtn.setText("Sort (asc)");
-            }
-        });
+        sortBtn.setOnAction(actionEvent -> this.reverseMovies());
 
+    }
 
+    public void initializeMovies(ObservableList<Movie> movieList) {
+        if (movieList == null) {
+            observableMovies.setAll(Movie.initializeMovies());
+            return;
+        }
+        observableMovies.setAll(movieList);
+    }
+
+    public void sortMovies() {
+        observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
+        sortState = SortState.ASCENDING;
+    }
+
+    public void reverseMovies(){
+        if (this.sortState == SortState.ASCENDING) {
+            FXCollections.reverse(observableMovies);
+            this.sortState = SortState.DESCENDING;
+            this.sortBtn.setText("Sort (desc)");
+        }else if (this.sortState == SortState.DESCENDING) {
+            FXCollections.reverse(observableMovies);
+            this.sortState = SortState.ASCENDING;
+            this.sortBtn.setText("Sort (asc)");
+        }else {
+            throw new UnexpectedSortStateException("Error: sortState is \"" + sortState.toString() + "\"! Expected \"ASCENDING\" or \"DESCENDING\"!");
+        }
+    }
+
+    public void filterMovies() {
+        Predicate<Movie> filterGenre = i -> true;
+        if (genreComboBox.getValue() != Genre.NONE && genreComboBox.getValue() != null) {
+            filterGenre = i -> i.getGenres().contains(genreComboBox.getValue());    //filter by genre
+        }
+        Predicate<Movie> filterTitle = i -> i.getTitle().toLowerCase().contains(searchField.getText().toLowerCase());
+        Predicate<Movie> filterDescription = i -> i.getDescription().toLowerCase().contains(searchField.getText().toLowerCase());
+        Predicate<Movie> queryFilter = filterTitle.or(filterDescription);
+        Predicate<Movie> filter = queryFilter.and(filterGenre);
+        filteredList.setPredicate(filter);
+    }
+
+}
+
+class UnexpectedSortStateException extends RuntimeException {
+    public UnexpectedSortStateException(String message) {
+        super(message);
     }
 }
