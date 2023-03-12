@@ -48,6 +48,8 @@ class HomeControllerTest extends ApplicationTest {
                     "The most generic movie ever made.",
                     Arrays.asList(Genre.COMEDY, Genre.CRIME)
             )
+
+
     );
 
     HomeController homeController = null;
