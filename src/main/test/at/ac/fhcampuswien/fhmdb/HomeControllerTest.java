@@ -88,20 +88,17 @@ class HomeControllerTest extends ApplicationTest {
 
     @Test
     void initializeMovies_fills_viewList_with_moviesList_given_as_parameter() throws InterruptedException {
-        //TODO write test case
         //given
         ObservableList<Movie> movieListAsParameter = FXCollections.observableArrayList();
         movieListAsParameter.addAll(Movie.initializeMovies());
 
         //when
-        Platform.runLater(()->{
-            this.homeController.initializeMovies(movieListAsParameter);
-        });
+        Platform.runLater(()-> this.homeController.initializeMovies(movieListAsParameter));
         HomeControllerTest.waitForRunLater();
 
         //then
         for(int i =0; i < movieListAsParameter.size();i++) {
-            assertTrue(this.homeController.observableMovies.get(i).equals(movieListAsParameter.get(i)));
+            assertEquals(this.homeController.observableMovies.get(i), movieListAsParameter.get(i));
         }
 
     }
