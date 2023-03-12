@@ -15,7 +15,7 @@ public class Movie {
         this.genres = genres;
     }
 
-    @Override  // Methode die zwei Filme vergeleicht.
+    @Override  // Methode to compare to movies.
     public boolean equals(Object o){
         if(o == null){
             return false;
@@ -55,6 +55,22 @@ public class Movie {
                 "Generic Movie",
                 "The most generic movie ever made.",
                 Arrays.asList(Genre.COMEDY, Genre.CRIME)
+        ));
+
+        movies.add(new Movie("Scooby-Doo", "A speaking dog and a guy on drugs.",
+                Arrays.asList(Genre.COMEDY, Genre.ANIMATION)
+        ));
+
+        movies.add(new Movie("The Room", "I did not hit her. I did not. Oh, hi Mark.",
+                Arrays.asList(Genre.MUSICAL, Genre.ROMANCE)
+        ));
+
+        movies.add(new Movie("Attack of the killer Tomatoes.", "True story over the process of making Heinz Ketchup.",
+                Arrays.asList(Genre.DOCUMENTARY, Genre.ADVENTURE)
+        ));
+
+        movies.add(new Movie("Kung Pow (Chicken): Enter the fist.", "Is it a movie or a dish?",
+                Arrays.asList(Genre.BIOGRAPHY, Genre.SPORT)
         ));
 
         return movies;
