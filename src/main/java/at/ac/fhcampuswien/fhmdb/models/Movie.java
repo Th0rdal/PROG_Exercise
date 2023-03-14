@@ -15,18 +15,16 @@ public class Movie {
         this.genres = genres;
     }
 
-    @Override
-    public boolean equals(Object object){
-        if(object == null){
+    @Override  // Methode to compare to movies.
+    public boolean equals(Object o){
+        if(o == null){
             return false;
         }
-        if (object == this){
+        if (o == this){
             return true;
         }
-        if(!(object instanceof Movie other)){
-            return false;
-        }
-        return this.title.equals(other.title) && this.description.equals(other.description) && this.genres.equals(other.genres);
+        Movie movie = (Movie) o;
+        return this.title.equals(movie.title) && this.description.equals(movie.description) && this.genres.equals(movie.genres);
     }
 
     public String getTitle() {
@@ -57,6 +55,22 @@ public class Movie {
                 "Generic Movie",
                 "The most generic movie ever made.",
                 Arrays.asList(Genre.COMEDY, Genre.CRIME)
+        ));
+
+        movies.add(new Movie("Scooby-Doo", "A speaking dog and a guy on drugs.",
+                Arrays.asList(Genre.COMEDY, Genre.ANIMATION)
+        ));
+
+        movies.add(new Movie("The Room", "I did not hit her. I did not. Oh, hi Mark.",
+                Arrays.asList(Genre.MUSICAL, Genre.ROMANCE)
+        ));
+
+        movies.add(new Movie("Attack of the killer Tomatoes.", "True story over the process of making Heinz Ketchup.",
+                Arrays.asList(Genre.DOCUMENTARY, Genre.ADVENTURE)
+        ));
+
+        movies.add(new Movie("Kung Pow (Chicken): Enter the fist.", "Is it a movie or a dish?",
+                Arrays.asList(Genre.BIOGRAPHY, Genre.SPORT)
         ));
 
         return movies;
