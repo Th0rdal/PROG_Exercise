@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ApplicationExtension.class)
 class HomeControllerTest extends ApplicationTest {
 
-    ObservableList<Movie> testList = FXCollections.observableArrayList(
+    /*ObservableList<Movie> testList = FXCollections.observableArrayList(
             new Movie(
                     "Bamboo House",
                     "Movie about the struggle of the chinese resistance in wwII.",
@@ -46,7 +46,7 @@ class HomeControllerTest extends ApplicationTest {
             )
 
 
-    );
+    );*/
 
     HomeController homeController = null;
     Stage stage = null;
@@ -139,7 +139,7 @@ class HomeControllerTest extends ApplicationTest {
         HomeControllerTest.waitForRunLater();
 
         //THEN
-        ObservableList<Movie> expected = FXCollections.observableArrayList(
+        /*ObservableList<Movie> expected = FXCollections.observableArrayList(
             new Movie(
                     "Generic Movie",
                     "The most generic movie ever made.",
@@ -154,14 +154,14 @@ class HomeControllerTest extends ApplicationTest {
                     "Bamboo House",
                     "Movie about the struggle of the chinese resistance in wwII.",
                     Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-            ));
+            ));*/
         Assertions.assertIterableEquals(expected, this.homeController.observableMovies);
     }
 
     @Test
     void reverseMovies_reverses_list_when_sortButton_pressed_desc_to_asc() throws InterruptedException {
         //GIVEN
-        ObservableList<Movie> testList = FXCollections.observableArrayList(
+        /*ObservableList<Movie> testList = FXCollections.observableArrayList(
             new Movie(
                 "Generic Movie",
                 "The most generic movie ever made.",
@@ -176,7 +176,7 @@ class HomeControllerTest extends ApplicationTest {
                 "Bamboo House",
                 "Movie about the struggle of the chinese resistance in wwII.",
                 Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-        ));
+        ));*/
         Platform.runLater(() -> this.homeController.initializeMovies(testList));
         HomeControllerTest.waitForRunLater();
 

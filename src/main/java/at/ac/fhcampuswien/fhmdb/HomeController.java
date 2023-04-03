@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.ResourceBundle;
@@ -32,6 +33,12 @@ public class HomeController implements Initializable {
     public JFXComboBox<Genre> genreComboBox;
 
     @FXML
+    public JFXComboBox<Integer> yearComboBox;
+
+    @FXML
+    public JFXComboBox<Double> ratingComboBox;
+
+    @FXML
     public JFXButton sortBtn;
 
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
@@ -49,7 +56,11 @@ public class HomeController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         //preparing the movie list
-        this.initializeMovies(null);
+        try {
+            this.initializeMovies(null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         this.sortMovies();
 
         // initialize UI stuff
@@ -61,6 +72,12 @@ public class HomeController implements Initializable {
         genreComboBox.getSelectionModel().select(Genre.NONE);
         movieListView.setItems(filteredList);
 
+        //init yearComboBox
+        yearComboBox.setPromptText("Filter by Release Year");
+
+        //init ratingComboBox
+        ratingComboBox.setPromptText("Filter by Rating");
+
         // either set event handlers in the fxml file (onAction) or add them here
         searchBtn.setOnAction(actionEvent -> this.filterMovies());
 
@@ -69,7 +86,7 @@ public class HomeController implements Initializable {
 
     }
 
-    public void initializeMovies(ObservableList<Movie> movieList) {
+    public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
         if (movieList == null) {
             observableMovies.setAll(Movie.initializeMovies());
             return;
