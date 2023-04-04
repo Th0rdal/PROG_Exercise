@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
@@ -15,8 +16,7 @@ import javafx.scene.control.TextField;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class HomeController implements Initializable {
@@ -33,10 +33,10 @@ public class HomeController implements Initializable {
     public JFXComboBox<Genre> genreComboBox;
 
     @FXML
-    public JFXComboBox<Integer> yearComboBox;
+    public JFXComboBox<String> yearComboBox;
 
     @FXML
-    public JFXComboBox<Double> ratingComboBox;
+    public JFXComboBox<String> ratingComboBox;
 
     @FXML
     public JFXButton sortBtn;
@@ -51,10 +51,9 @@ public class HomeController implements Initializable {
     }
 
     public SortState sortState = SortState.NONE;
-
+    public MovieAPI movieAPI = new MovieAPI();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         //preparing the movie list
         try {
             this.initializeMovies(null);
@@ -65,21 +64,27 @@ public class HomeController implements Initializable {
 
         // initialize UI stuff
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
-
+        System.out.println(this.getMostPopularActor(observableMovies));
+        System.out.println(this.getLongestMovieTitle(observableMovies));
 
         //genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
         genreComboBox.getSelectionModel().select(Genre.NONE);
         movieListView.setItems(filteredList);
 
-        //init yearComboBox
-        yearComboBox.setPromptText("Filter by Release Year");
+        //yearComboBox init
+        yearComboBox.getSelectionModel().select("No release year filter");
 
-        //init ratingComboBox
-        ratingComboBox.setPromptText("Filter by Rating");
-
+        //ratingComboBox init
+        ratingComboBox.getSelectionModel().select("No rating filter");
         // either set event handlers in the fxml file (onAction) or add them here
-        searchBtn.setOnAction(actionEvent -> this.filterMovies());
+        searchBtn.setOnAction(actionEvent -> {
+            try {
+                observableMovies.setAll(this.movieAPI.getFilteredMovieList(searchField.getText(), genreComboBox.getValue(), yearComboBox.getValue(), ratingComboBox.getValue()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> this.reverseMovies());
@@ -89,6 +94,15 @@ public class HomeController implements Initializable {
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
         if (movieList == null) {
             observableMovies.setAll(Movie.initializeMovies());
+            List<String> yearList = new ArrayList<>();
+            observableMovies.stream().map(Movie::getYear).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(yearList::add);
+            this.yearComboBox.getItems().setAll(yearList);
+            this.yearComboBox.getItems().add("No release year filter");
+
+            List<String> ratingList = new ArrayList<>();
+            observableMovies.stream().map(Movie::getRating).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(ratingList::add);
+            this.ratingComboBox.getItems().addAll(ratingList);
+            this.ratingComboBox.getItems().add("No rating filter");
             return;
         }
         observableMovies.setAll(movieList);
@@ -113,7 +127,24 @@ public class HomeController implements Initializable {
         }
     }
 
-    public void filterMovies() {
+    public String getMostPopularActor(List<Movie> movies) {
+        Map<String, Integer> mainCastMap = new HashMap<>();
+        movies.stream().map(Movie::getMainCast).flatMap(List::stream).forEach(i -> {
+            if (mainCastMap.containsKey(i)) {
+                mainCastMap.put(i, mainCastMap.get(i)+1);
+            }else {
+                mainCastMap.put(i, 1);
+            }
+        });
+        return mainCastMap.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+    }
+
+    public int getLongestMovieTitle(List<Movie> movies) {
+        return movies.stream().map(Movie::getTitle).map(String::length).max(Integer::compareTo).get();
+
+    }
+
+    /*public void filterMovies() {
         Predicate<Movie> filterGenre = i -> true;
         if (genreComboBox.getValue() != Genre.NONE && genreComboBox.getValue() != null) {
             filterGenre = i -> i.getGenres().contains(genreComboBox.getValue());    //filter by genre
@@ -123,7 +154,7 @@ public class HomeController implements Initializable {
         Predicate<Movie> queryFilter = filterTitle.or(filterDescription);
         Predicate<Movie> filter = queryFilter.and(filterGenre);
         filteredList.setPredicate(filter);
-    }
+    }*/
 
 }
 

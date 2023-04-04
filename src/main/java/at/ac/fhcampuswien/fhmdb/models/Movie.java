@@ -63,6 +63,11 @@ public class Movie {
 
     public List<Genre> getGenres (){return genres;}
 
+    public int getYear() {return this.releaseYear;}
+    public String getYearAsString() {return String.valueOf(this.releaseYear);}
+    public double getRating() {return this.rating;}
+    public List<String> getMainCast() {return this.mainCast;}
+
     public static List<Movie> initializeMovies() throws IOException {
         MovieAPI movieAPI = new MovieAPI();
         return movieAPI.getFullMovieList();
