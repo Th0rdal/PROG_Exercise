@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class HomeController implements Initializable {
     @FXML
@@ -66,6 +67,10 @@ public class HomeController implements Initializable {
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
         System.out.println(this.getMostPopularActor(observableMovies));
         System.out.println(this.getLongestMovieTitle(observableMovies));
+        System.out.println(this.countMoviesFrom(observableMovies,"Peter Jackson"));
+        System.out.println(this.getMoviesBetweenYears(observableMovies,2012,2011));
+
+
 
         //genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
@@ -143,6 +148,19 @@ public class HomeController implements Initializable {
         return movies.stream().map(Movie::getTitle).map(String::length).max(Integer::compareTo).get();
 
     }
+
+    public long countMoviesFrom(List<Movie> movies, String director){
+        return movies.stream()
+                .filter(movie -> movie.getDirectors().contains(director))
+                .count();
+    }
+
+    public List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
+        return movies.stream()
+                .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
+                .collect(Collectors.toList());
+    }
+
 
     /*public void filterMovies() {
         Predicate<Movie> filterGenre = i -> true;

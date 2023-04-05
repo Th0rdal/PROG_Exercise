@@ -3,8 +3,6 @@ package at.ac.fhcampuswien.fhmdb.models;
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Movie {
@@ -63,6 +61,8 @@ public class Movie {
 
     public List<Genre> getGenres (){return genres;}
 
+    public List<String> getDirectors(){return this.directors;}
+
     public int getYear() {return this.releaseYear;}
     public String getYearAsString() {return String.valueOf(this.releaseYear);}
     public double getRating() {return this.rating;}
@@ -71,5 +71,10 @@ public class Movie {
     public static List<Movie> initializeMovies() throws IOException {
         MovieAPI movieAPI = new MovieAPI();
         return movieAPI.getFullMovieList();
+    }
+
+
+    public int getReleaseYear() {
+        return this.releaseYear;
     }
 }

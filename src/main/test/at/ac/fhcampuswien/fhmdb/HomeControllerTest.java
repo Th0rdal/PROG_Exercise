@@ -105,9 +105,9 @@ class HomeControllerTest extends ApplicationTest {
     @Test
     void sortMovies_sorts_movies_ascending() throws InterruptedException {
         // given
-        ObservableList<Movie> sortingListAscending = FXCollections.observableArrayList(); // Erstellen einer leeren Liste (Liste von oben)
+        ObservableList<Movie> sortingListAscending = FXCollections.observableArrayList(); // Creates a empty list
 
-        ObservableList<Movie> startList = FXCollections.observableArrayList();// Erstellen einer zweiten Liste die wir manuel Befüllen
+        ObservableList<Movie> startList = FXCollections.observableArrayList();// Creates a empty list and fill it manually
         startList.add(this.testList.get(2));
         startList.add(this.testList.get(0));
         startList.add(this.testList.get(1));
@@ -115,14 +115,14 @@ class HomeControllerTest extends ApplicationTest {
         // when
         //Java Fx Code
         Platform.runLater(() -> {
-            this.homeController.initializeMovies(startList); //?
+            this.homeController.initializeMovies(startList);
             this.homeController.sortMovies();
         });
         HomeControllerTest.waitForRunLater();
 
         // then
         sortingListAscending.addAll(this.homeController.observableMovies);
-        Assertions.assertIterableEquals(sortingListAscending,this.testList); //Vergleich
+        Assertions.assertIterableEquals(sortingListAscending,this.testList); //Compare the two list
     }
 
     @Test
