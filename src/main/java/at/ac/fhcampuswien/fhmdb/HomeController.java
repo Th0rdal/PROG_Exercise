@@ -68,7 +68,9 @@ public class HomeController implements Initializable {
         System.out.println(this.getMostPopularActor(observableMovies));
         System.out.println(this.getLongestMovieTitle(observableMovies));
         System.out.println(this.countMoviesFrom(observableMovies,"Peter Jackson"));
-        System.out.println(this.getMoviesBetweenYears(observableMovies,2012,2011));
+        this.getMoviesBetweenYears(observableMovies,2000,2050)
+                .stream()
+                .forEach(Movie::displayOnConsole);
 
 
 
@@ -134,29 +136,45 @@ public class HomeController implements Initializable {
 
     public String getMostPopularActor(List<Movie> movies) {
         Map<String, Integer> mainCastMap = new HashMap<>();
-        movies.stream().map(Movie::getMainCast).flatMap(List::stream).forEach(i -> {
-            if (mainCastMap.containsKey(i)) {
-                mainCastMap.put(i, mainCastMap.get(i)+1);
-            }else {
-                mainCastMap.put(i, 1);
-            }
-        });
-        return mainCastMap.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
+        movies.stream()
+                .filter(Objects::nonNull)
+                .map(Movie::getMainCast)
+                .flatMap(List::stream)
+                .forEach(i -> {
+                    if (mainCastMap.containsKey(i)) {
+                        mainCastMap.put(i, mainCastMap.get(i)+1);
+                    }else {
+                        mainCastMap.put(i, 1);
+                    }
+                });
+        return mainCastMap
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .get()
+                .getKey();
     }
 
     public int getLongestMovieTitle(List<Movie> movies) {
-        return movies.stream().map(Movie::getTitle).map(String::length).max(Integer::compareTo).get();
+        return movies.stream()
+                .filter(Objects::nonNull)
+                .map(Movie::getTitle)
+                .map(String::length)
+                .max(Integer::compareTo)
+                .get();
 
     }
 
     public long countMoviesFrom(List<Movie> movies, String director){
         return movies.stream()
+                .filter(Objects::nonNull)
                 .filter(movie -> movie.getDirectors().contains(director))
                 .count();
     }
 
     public List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
         return movies.stream()
+                .filter(Objects::nonNull)
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
                 .collect(Collectors.toList());
     }

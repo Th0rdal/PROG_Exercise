@@ -62,11 +62,38 @@ public class Movie {
     public List<Genre> getGenres (){return genres;}
 
     public List<String> getDirectors(){return this.directors;}
-
     public int getYear() {return this.releaseYear;}
     public String getYearAsString() {return String.valueOf(this.releaseYear);}
     public double getRating() {return this.rating;}
     public List<String> getMainCast() {return this.mainCast;}
+    public void displayOnConsole() {
+        StringBuilder display = new StringBuilder();
+        display.append("Movie ID: ")
+                .append(this.id)
+                .append("\nTitle: ")
+                .append(this.title)
+                .append("\nDescription: ")
+                .append(this.description)
+                .append("\nGenres:")
+                .append(this.genres.toString())
+                .append("\nLength: ")
+                .append(this.lengthInMinutes)
+                .append("\nRelease Year: ")
+                .append(this.releaseYear)
+                .append("\nWriters: ")
+                .append(this.writers.toString())
+                .append("\nDirectors: ")
+                .append(this.directors.toString())
+                .append("\nMaincast: ")
+                .append(this.mainCast.toString())
+                .append("\nrating: ")
+                .append(this.rating)
+                .append("\nimage URL: ")
+                .append(this.imgURL)
+                .append("\n");
+        System.out.println(display.toString());
+
+    }
 
     public static List<Movie> initializeMovies() throws IOException {
         MovieAPI movieAPI = new MovieAPI();
