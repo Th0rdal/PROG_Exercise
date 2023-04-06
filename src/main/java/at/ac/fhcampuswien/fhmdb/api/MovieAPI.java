@@ -70,7 +70,7 @@ public class MovieAPI {
             }else {
                 url.append("&");
             }
-            url.append("rating=").append(Double.parseDouble(rating));
+            url.append("ratingFrom=").append(Double.parseDouble(rating));
         }
         System.out.println(url.toString());
         Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
@@ -80,7 +80,7 @@ public class MovieAPI {
             return Arrays.asList(movies).stream()
                     .filter(i -> searchText.equals("")  || (i.getTitle().contains(searchText) || i.getDescription().contains(searchText)))
                     .filter(i -> genre == Genre.NONE || i.getGenres().contains(genre))
-                    .filter(i -> releaseYear.equals("No release year filter") || i.getYear() == Integer.parseInt(releaseYear))
+                    .filter(i -> releaseYear.equals("No release year filter") || i.getReleaseYear() == Integer.parseInt(releaseYear))
                     .filter(i -> rating.equals("No rating filter") || i.getRating() == Double.parseDouble(rating))
                     .collect(Collectors.toList());
 

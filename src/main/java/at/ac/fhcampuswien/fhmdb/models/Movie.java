@@ -62,8 +62,7 @@ public class Movie {
     public List<Genre> getGenres (){return genres;}
 
     public List<String> getDirectors(){return this.directors;}
-    public int getYear() {return this.releaseYear;}
-    public String getYearAsString() {return String.valueOf(this.releaseYear);}
+    public int getReleaseYear() {return this.releaseYear;}
     public double getRating() {return this.rating;}
     public List<String> getMainCast() {return this.mainCast;}
     public void displayOnConsole() {
@@ -98,10 +97,5 @@ public class Movie {
     public static List<Movie> initializeMovies() throws IOException {
         MovieAPI movieAPI = new MovieAPI();
         return movieAPI.getFullMovieList();
-    }
-
-
-    public int getReleaseYear() {
-        return this.releaseYear;
     }
 }

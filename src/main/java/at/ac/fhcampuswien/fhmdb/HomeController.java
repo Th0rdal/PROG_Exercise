@@ -65,12 +65,12 @@ public class HomeController implements Initializable {
 
         // initialize UI stuff
         movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
-        System.out.println(this.getMostPopularActor(observableMovies));
-        System.out.println(this.getLongestMovieTitle(observableMovies));
-        System.out.println(this.countMoviesFrom(observableMovies,"Peter Jackson"));
-        this.getMoviesBetweenYears(observableMovies,2000,2050)
-                .stream()
-                .forEach(Movie::displayOnConsole);
+        //System.out.println(this.getMostPopularActor(observableMovies));
+        //System.out.println(this.getLongestMovieTitle(observableMovies));
+        //System.out.println(this.countMoviesFrom(observableMovies,"Peter Jackson"));
+        //this.getMoviesBetweenYears(observableMovies,2000,2050)
+         //       .stream()
+          //      .forEach(Movie::displayOnConsole);
 
 
 
@@ -79,15 +79,16 @@ public class HomeController implements Initializable {
         genreComboBox.getSelectionModel().select(Genre.NONE);
         movieListView.setItems(filteredList);
 
-        //yearComboBox init
+        //yearComboBox fill comboBox
         yearComboBox.getSelectionModel().select("No release year filter");
-
-        //ratingComboBox init
         ratingComboBox.getSelectionModel().select("No rating filter");
+
         // either set event handlers in the fxml file (onAction) or add them here
         searchBtn.setOnAction(actionEvent -> {
             try {
                 observableMovies.setAll(this.movieAPI.getFilteredMovieList(searchField.getText(), genreComboBox.getValue(), yearComboBox.getValue(), ratingComboBox.getValue()));
+                observableMovies.stream().forEach(Movie::displayOnConsole);
+                this.updateComboBoxes();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -101,20 +102,31 @@ public class HomeController implements Initializable {
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
         if (movieList == null) {
             observableMovies.setAll(Movie.initializeMovies());
-            List<String> yearList = new ArrayList<>();
-            observableMovies.stream().map(Movie::getYear).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(yearList::add);
-            this.yearComboBox.getItems().setAll(yearList);
-            this.yearComboBox.getItems().add("No release year filter");
-
-            List<String> ratingList = new ArrayList<>();
-            observableMovies.stream().map(Movie::getRating).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(ratingList::add);
-            this.ratingComboBox.getItems().addAll(ratingList);
-            this.ratingComboBox.getItems().add("No rating filter");
+            this.updateComboBoxes();
             return;
         }
         observableMovies.setAll(movieList);
     }
 
+    public void updateComboBoxes() {
+        String currentValue = this.yearComboBox.getValue();
+        if (currentValue == null || currentValue.equals("No release year filter")) {
+            List<String> yearList = new ArrayList<>();
+            observableMovies.stream().map(Movie::getReleaseYear).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(yearList::add);
+            this.yearComboBox.getItems().setAll(yearList);
+            this.yearComboBox.getItems().add("No release year filter");
+            this.yearComboBox.getSelectionModel().select(currentValue);
+        }
+
+        String currentRating = this.ratingComboBox.getValue();
+        if (currentRating == null || currentRating.equals("No rating filter")) {
+            List<String> ratingList = new ArrayList<>();
+            observableMovies.stream().map(Movie::getRating).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(ratingList::add);
+            this.ratingComboBox.getItems().setAll(ratingList);
+            this.ratingComboBox.getItems().add("No rating filter");
+            this.ratingComboBox.getSelectionModel().select(currentRating);
+        }
+    }
     public void sortMovies() {
         observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
         sortState = SortState.ASCENDING;
