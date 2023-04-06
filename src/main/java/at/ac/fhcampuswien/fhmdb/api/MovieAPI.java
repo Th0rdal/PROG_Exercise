@@ -10,14 +10,12 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MovieAPI {
 
     OkHttpClient client = new OkHttpClient();
     String baseURL = "https://prog2.fh-campuswien.ac.at";
-    Gson gson = null;
+    Gson gson;
     public MovieAPI() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Movie.class, new MovieTypeAdapter());
@@ -44,7 +42,7 @@ public class MovieAPI {
             }else {
                 url.append("&");
             }
-            url.append("string=").append(searchText);
+            url.append("query=").append(searchText);
         }
         if (genre != Genre.NONE) {
             if (firstQuery) {
@@ -72,18 +70,12 @@ public class MovieAPI {
             }
             url.append("ratingFrom=").append(Double.parseDouble(rating));
         }
-        System.out.println(url.toString());
+        System.out.println(url);
         Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
         try (Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
             Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
-            return Arrays.asList(movies).stream()
-                    .filter(i -> searchText.equals("")  || (i.getTitle().contains(searchText) || i.getDescription().contains(searchText)))
-                    .filter(i -> genre == Genre.NONE || i.getGenres().contains(genre))
-                    .filter(i -> releaseYear.equals("No release year filter") || i.getReleaseYear() == Integer.parseInt(releaseYear))
-                    .filter(i -> rating.equals("No rating filter") || i.getRating() == Double.parseDouble(rating))
-                    .collect(Collectors.toList());
-
+            return Arrays.asList(movies);
         }
     }
 }
