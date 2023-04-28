@@ -1,19 +1,24 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
     private final Label detail = new Label();
     private final Label genre = new Label();
-    private final VBox layout = new VBox(title, detail, genre);
+    private final JFXButton detailsButton = new JFXButton("show details");
+    private final JFXButton addToWatchlistButton = new JFXButton("Watchlist");
+    private final HBox inCellButtons = new HBox(detailsButton, addToWatchlistButton);
+    private final HBox inCellLayout = new HBox(title, inCellButtons);
+    private final VBox layout = new VBox(inCellLayout, detail, genre);
 
     @Override
     protected void updateItem(Movie movie, boolean empty) {
@@ -40,6 +45,8 @@ public class MovieCell extends ListCell<Movie> {
             title.getStyleClass().add("text-yellow");
             detail.getStyleClass().add("text-white");
             genre.getStyleClass().add("text-white");
+            detailsButton.setBackground(new Background(new BackgroundFill(Color.web("#f5c518"), new CornerRadii(3.5), null)));
+            addToWatchlistButton.setBackground(new Background(new BackgroundFill(Color.web("#f5c518"), new CornerRadii(3.5), null)));
             layout.setBackground(new Background(new BackgroundFill(Color.web("#454545"), null, null)));
 
             // layout
@@ -51,6 +58,10 @@ public class MovieCell extends ListCell<Movie> {
             layout.setPadding(new Insets(10));
             layout.spacingProperty().set(10);
             layout.alignmentProperty().set(javafx.geometry.Pos.CENTER_LEFT);
+
+            inCellButtons.spacingProperty().set(10);
+            //inCellLayout.spacingProperty().set(50);
+            inCellButtons.setAlignment(Pos.CENTER_RIGHT);
             setGraphic(layout);
         }
     }

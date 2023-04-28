@@ -12,7 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Screen;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,7 +47,10 @@ public class HomeController implements Initializable {
 
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
     public FilteredList<Movie> filteredList = new FilteredList<>(observableMovies, null);
-
+    @FXML
+    public JFXButton changeListButton;
+    @FXML
+    public AnchorPane anchorPane;
     public enum SortState {
         NONE,
         ASCENDING,
@@ -53,8 +59,11 @@ public class HomeController implements Initializable {
 
     public SortState sortState = SortState.NONE;
     public MovieAPI movieAPI = new MovieAPI();
+
+    public AnchorPane anchorPane2 = new AnchorPane();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         //preparing the movie list
         try {
             this.initializeMovies(null);
