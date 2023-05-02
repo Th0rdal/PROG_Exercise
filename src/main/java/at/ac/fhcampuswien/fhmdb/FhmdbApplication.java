@@ -1,7 +1,5 @@
 package at.ac.fhcampuswien.fhmdb;
 
-import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
-import at.ac.fhcampuswien.fhmdb.models.Genre;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -22,7 +20,8 @@ public class FhmdbApplication extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        throw new UnexpectedSortStateException("bad");
+        //launch();
     }
 
 

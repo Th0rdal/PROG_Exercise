@@ -4,7 +4,6 @@ import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.*;
@@ -16,7 +15,7 @@ public class MovieCell extends ListCell<Movie> {
     private final Label genre = new Label();
     private final JFXButton detailsButton = new JFXButton("show details");
     private final JFXButton addToWatchlistButton = new JFXButton("Watchlist");
-    private final HBox inCellButtons = new HBox(detailsButton, addToWatchlistButton);
+    private final HBox inCellButtons = new HBox(title, detailsButton, addToWatchlistButton);
     private final HBox inCellLayout = new HBox(title, inCellButtons);
     private final VBox layout = new VBox(inCellLayout, detail, genre);
 
@@ -57,11 +56,14 @@ public class MovieCell extends ListCell<Movie> {
             genre.setWrapText(true);
             layout.setPadding(new Insets(10));
             layout.spacingProperty().set(10);
+            HBox.setHgrow(inCellButtons, Priority.ALWAYS);
+            inCellButtons.alignmentProperty().set(javafx.geometry.Pos.CENTER_RIGHT);
+            inCellLayout.setAlignment(Pos.CENTER_LEFT);
             layout.alignmentProperty().set(javafx.geometry.Pos.CENTER_LEFT);
-
+            inCellLayout.spacingProperty().set(10);
             inCellButtons.spacingProperty().set(10);
-            //inCellLayout.spacingProperty().set(50);
-            inCellButtons.setAlignment(Pos.CENTER_RIGHT);
+            //addToWatchlistButton.paddingProperty().set(new Insets(0, 0, 0, 0));
+            inCellButtons.setPadding(new Insets(0, 10, 0, 0));
             setGraphic(layout);
         }
     }
