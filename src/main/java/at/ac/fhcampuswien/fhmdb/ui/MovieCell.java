@@ -1,6 +1,5 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
-import at.ac.fhcampuswien.fhmdb.database.Database;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -61,6 +60,8 @@ public class MovieCell extends ListCell<Movie> {
         // layout
         detail.setWrapText(true);
         genre.setWrapText(true);
+        detail.setPrefWidth(50);
+        detail.setMaxWidth(50);
         layout.setPadding(new Insets(10));
         layout.spacingProperty().set(10);
         HBox.setHgrow(inCellButtons, Priority.ALWAYS);
