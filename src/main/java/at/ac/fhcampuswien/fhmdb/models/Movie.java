@@ -60,7 +60,8 @@ public class Movie {
     }
 
     public List<Genre> getGenres (){return genres;}
-
+    public int getLengthInMinutes() {return this.lengthInMinutes;}
+    public List<String> getWriters() {return this.writers;}
     public List<String> getDirectors(){return this.directors;}
     public int getReleaseYear() {return this.releaseYear;}
     public double getRating() {return this.rating;}

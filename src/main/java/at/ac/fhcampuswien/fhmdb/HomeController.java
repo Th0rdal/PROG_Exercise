@@ -103,6 +103,14 @@ public class HomeController implements Initializable {
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> this.reverseMovies());
 
+        changeListButton.setOnAction(actionEvent -> {
+            if (this.changeListButton.getText().equals("Back")) {
+                this.changeListButton.setText("Watchlist");
+            }else {
+                this.changeListButton.setText("Back");
+            }
+
+        });
     }
 
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {

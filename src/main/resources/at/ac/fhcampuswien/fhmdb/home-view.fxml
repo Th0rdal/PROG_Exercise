@@ -13,7 +13,7 @@
 <?import com.jfoenix.controls.JFXCheckBox?>
 <VBox prefHeight="331.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.ac.fhcampuswien.fhmdb.HomeController">
    <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="347.0" style="-fx-background-color: black;">
-      <HBox alignment="TOP_LEFT" style="-fx-background-color: black" prefWidth="1300.0" spacing="20.0">
+      <HBox alignment="TOP_LEFT" style="-fx-background-color: black" prefWidth="725.0" spacing="20.0">
          <padding>
             <Insets bottom="7.0" left="10.0" top="7.0"/>
          </padding>

@@ -20,8 +20,7 @@ public class FhmdbApplication extends Application {
     }
 
     public static void main(String[] args) {
-        throw new UnexpectedSortStateException("bad");
-        //launch();
+        launch();
     }
 
 
