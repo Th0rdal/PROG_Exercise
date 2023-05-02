@@ -23,6 +23,18 @@ public class Movie {
         this.description = description;
         this.genres = genres;
     }
+
+    public Movie(String title, String description, List<Genre> genres, int releaseYear, String id, String imgURL, int lengthInMinutes, double rating) {
+        this.title = title;
+        this.description = description;
+        this.genres = genres;
+        this.releaseYear = releaseYear;
+        this.id = id;
+        this.imgURL = imgURL;
+        this.lengthInMinutes = lengthInMinutes;
+        this.rating = rating;
+    }
+
     public Movie(String title, String description, List<Genre> genres, int releaseYear, String id, String imgURL, int lengthInMinutes, List<String> directors, List<String> writers, List<String> mainCast, double rating) {
         this.title = title;
         this.description = description;
@@ -66,6 +78,8 @@ public class Movie {
     public int getReleaseYear() {return this.releaseYear;}
     public double getRating() {return this.rating;}
     public List<String> getMainCast() {return this.mainCast;}
+    public String getID() {return this.id;}
+    public String getImgUrl() {return this.imgURL;}
     public void displayOnConsole() {
         StringBuilder display = new StringBuilder();
         display.append("Movie ID: ")

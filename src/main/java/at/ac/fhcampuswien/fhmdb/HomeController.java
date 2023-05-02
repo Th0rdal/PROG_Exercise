@@ -1,6 +1,8 @@
 package at.ac.fhcampuswien.fhmdb;
 
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
+import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
@@ -17,6 +19,7 @@ import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,9 +46,11 @@ public class HomeController implements Initializable {
     public JFXButton sortBtn;
 
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
-    public FilteredList<Movie> filteredList = new FilteredList<>(observableMovies, null);
+    public ObservableList<Movie> watchlistMovies = FXCollections.observableArrayList();
+    public ObservableList<Movie> saveListMovies = FXCollections.observableArrayList();
     @FXML
     public JFXButton changeListButton;
+    private final WatchlistRepository watchlistRepository = new WatchlistRepository();
     @FXML
     public AnchorPane anchorPane;
     public enum SortState {
@@ -53,6 +58,12 @@ public class HomeController implements Initializable {
         ASCENDING,
         DESCENDING
     }
+    public enum ListState{
+        NONE,
+        WATCHLIST,
+        APIMOVIELIST
+    }
+    private ListState listState = ListState.NONE;
 
     public SortState sortState = SortState.NONE;
     public MovieAPI movieAPI = new MovieAPI();
@@ -83,7 +94,7 @@ public class HomeController implements Initializable {
         //genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().addAll(Genre.values());    //add all Genres to the comboBox
         genreComboBox.getSelectionModel().select(Genre.NONE);
-        movieListView.setItems(filteredList);
+        movieListView.setItems(this.observableMovies);
 
         //yearComboBox fill comboBox
         yearComboBox.getSelectionModel().select("No release year filter");
@@ -91,13 +102,37 @@ public class HomeController implements Initializable {
 
         // either set event handlers in the fxml file (onAction) or add them here
         searchBtn.setOnAction(actionEvent -> {
-            try {
-                observableMovies.setAll(this.movieAPI.getFilteredMovieList(searchField.getText(), genreComboBox.getValue(), yearComboBox.getValue(), ratingComboBox.getValue()));
-                observableMovies.stream().forEach(Movie::displayOnConsole);
-                this.updateComboBoxes();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (this.listState == ListState.APIMOVIELIST) {
+                try {
+                    observableMovies.setAll(this.movieAPI.getFilteredMovieList(searchField.getText(), genreComboBox.getValue(), yearComboBox.getValue(), ratingComboBox.getValue()));
+                    observableMovies.forEach(Movie::displayOnConsole);
+                    this.updateComboBoxes();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }else if (this.listState == ListState.WATCHLIST) {
+                this.observableMovies.setAll(this.watchlistMovies.stream()
+                        .filter(i -> i.getTitle().toLowerCase().contains(searchField.getText().toLowerCase()))
+                        .filter(i -> i.getDescription().toLowerCase().contains(searchField.getText().toLowerCase()))
+                        .filter(i -> {
+                            if (genreComboBox.getValue() == Genre.NONE) {
+                                return true;
+                            }else return i.getGenres().contains(genreComboBox.getValue());
+                        })
+                        .filter(i -> {
+                            if (yearComboBox.getValue().equals("No release year filter")) {
+                                return true;
+                            }
+                            return Integer.parseInt(yearComboBox.getValue()) == i.getReleaseYear();
+                        })
+                        .filter(i -> {
+                            if (ratingComboBox.getValue().equals("No rating filter")) {
+                                return true;
+                            }
+                            return Double.parseDouble(ratingComboBox.getValue()) == i.getReleaseYear();
+                        }).toList());
             }
+
         });
 
         // Sort button example:
@@ -105,8 +140,23 @@ public class HomeController implements Initializable {
 
         changeListButton.setOnAction(actionEvent -> {
             if (this.changeListButton.getText().equals("Back")) {
+                try {
+                    this.observableMovies.setAll(Movie.initializeMovies());
+                } catch (IOException e) {
+                    this.observableMovies.setAll(this.saveListMovies);
+                }
                 this.changeListButton.setText("Watchlist");
             }else {
+                this.saveListMovies.addAll(this.observableMovies);
+                try {
+                    List<WatchlistEntity> temp = this.watchlistRepository.getAll();
+                    List<Movie> tempMovie = temp.stream().map(WatchlistEntity::convertWatchlistEntityToMovie).toList();
+                    this.watchlistMovies.setAll(tempMovie);
+                    this.observableMovies.setAll(this.watchlistMovies);
+                    this.listState = ListState.WATCHLIST;
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
                 this.changeListButton.setText("Back");
             }
 
@@ -116,6 +166,7 @@ public class HomeController implements Initializable {
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
         if (movieList == null) {
             observableMovies.setAll(Movie.initializeMovies());
+            this.listState = ListState.APIMOVIELIST;
             this.updateComboBoxes();
             return;
         }

@@ -1,5 +1,8 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
+import at.ac.fhcampuswien.fhmdb.database.Database;
+import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
+import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
@@ -9,12 +12,14 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.sql.SQLException;
+
 public class MovieCell extends ListCell<Movie> {
     private final Label title = new Label();
     private final Label detail = new Label();
     private final Label genre = new Label();
     private final JFXButton detailsButton = new JFXButton("Show details");
-    private final JFXButton addToWatchlistButton = new JFXButton("Watchlist");
+    private final JFXButton addToWatchlistButton = new JFXButton("add to Watchlist");
     private final HBox inCellButtons = new HBox(title, detailsButton, addToWatchlistButton);
     private final HBox inCellLayout = new HBox(title, inCellButtons);
     private final VBox layout = new VBox(inCellLayout, detail, genre);
@@ -34,6 +39,15 @@ public class MovieCell extends ListCell<Movie> {
                 detailsButton.setText("Show Details");
             }
 
+        });
+
+        this.addToWatchlistButton.setOnAction(actionEvent -> {
+            WatchlistRepository watchlistRepository = new WatchlistRepository();
+            try {
+                watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(getItem()));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         // color scheme
