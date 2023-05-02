@@ -1,6 +1,8 @@
 package at.ac.fhcampuswien.fhmdb;
 
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.api.MovieApiException;
+import at.ac.fhcampuswien.fhmdb.database.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
@@ -68,7 +70,6 @@ public class HomeController implements Initializable {
     public SortState sortState = SortState.NONE;
     public MovieAPI movieAPI = new MovieAPI();
 
-    public AnchorPane anchorPane2 = new AnchorPane();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -76,12 +77,30 @@ public class HomeController implements Initializable {
         try {
             this.initializeMovies(null);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            new MovieApiException("Error in fetching the movies from the API. Check if you have internet connection!");
         }
         this.sortMovies();
 
+        ClickEventHandler clickEventHandler = (clickedItem, homeController) -> {
+            WatchlistRepository watchlistRepository = new WatchlistRepository();
+            if (homeController.getListState() == ListState.APIMOVIELIST) {
+                try {
+                    watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity((Movie) clickedItem));
+            } catch (SQLException e) {
+                new DatabaseException("Error in trying to add a movie to the Watchlist");
+            }
+            }else if (homeController.getListState() == ListState.WATCHLIST) {
+                try {
+                    watchlistRepository.removeFromWatchlist(WatchlistEntity.convertMovieToWatchlistEntity((Movie) clickedItem));
+                } catch (SQLException e) {
+                    new DatabaseException("Error in trying to delete a movie from the Watchlist");
+                }
+                homeController.updateObservableMovieList();
+            }
+
+        };
         // initialize UI stuff
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
+        movieListView.setCellFactory(movieListView -> new MovieCell(this, clickEventHandler)); // use custom cell factory to display data
         //System.out.println(this.getMostPopularActor(observableMovies));
         //System.out.println(this.getLongestMovieTitle(observableMovies));
         //System.out.println(this.countMoviesFrom(observableMovies,"Peter Jackson"));
@@ -108,7 +127,7 @@ public class HomeController implements Initializable {
                     observableMovies.forEach(Movie::displayOnConsole);
                     this.updateComboBoxes();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    new MovieApiException("Error in fetching the movies from the API. Check if you have an internet connection!");
                 }
             }else if (this.listState == ListState.WATCHLIST) {
                 this.observableMovies.setAll(this.watchlistMovies.stream()
@@ -131,6 +150,8 @@ public class HomeController implements Initializable {
                             }
                             return Double.parseDouble(ratingComboBox.getValue()) == i.getReleaseYear();
                         }).toList());
+            }else {
+                throw new UnexpectedListStateException("Reached an unexpected ListState!");
             }
 
         });
@@ -139,28 +160,38 @@ public class HomeController implements Initializable {
         sortBtn.setOnAction(actionEvent -> this.reverseMovies());
 
         changeListButton.setOnAction(actionEvent -> {
-            if (this.changeListButton.getText().equals("Back")) {
+            if (this.listState == ListState.WATCHLIST) {
+                this.listState = ListState.APIMOVIELIST;
                 try {
                     this.observableMovies.setAll(Movie.initializeMovies());
                 } catch (IOException e) {
+                    new MovieApiException("Error in fetching the movies from the API. Using old data!");
                     this.observableMovies.setAll(this.saveListMovies);
                 }
+                this.updateComboBoxes();
+                this.sortMovies();
                 this.changeListButton.setText("Watchlist");
             }else {
+                this.listState = ListState.WATCHLIST;
                 this.saveListMovies.addAll(this.observableMovies);
-                try {
-                    List<WatchlistEntity> temp = this.watchlistRepository.getAll();
-                    List<Movie> tempMovie = temp.stream().map(WatchlistEntity::convertWatchlistEntityToMovie).toList();
-                    this.watchlistMovies.setAll(tempMovie);
-                    this.observableMovies.setAll(this.watchlistMovies);
-                    this.listState = ListState.WATCHLIST;
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                this.updateObservableMovieList();
                 this.changeListButton.setText("Back");
             }
 
         });
+    }
+
+    public void updateObservableMovieList() {
+        try {
+            List<WatchlistEntity> temp = this.watchlistRepository.getAll();
+            List<Movie> tempMovie = temp.stream().map(WatchlistEntity::convertWatchlistEntityToMovie).toList();
+            this.watchlistMovies.setAll(tempMovie);
+            this.observableMovies.setAll(this.watchlistMovies);
+        } catch (SQLException e) {
+            new DatabaseException("Error in fetching elements from the database");
+        }
+        this.updateComboBoxes();
+        this.sortMovies();
     }
 
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
@@ -256,6 +287,8 @@ public class HomeController implements Initializable {
                 .collect(Collectors.toList());
     }
 
+    public ListState getListState() {return this.listState;}
+
 
     /*public void filterMovies() {
         Predicate<Movie> filterGenre = i -> true;
@@ -268,6 +301,7 @@ public class HomeController implements Initializable {
         Predicate<Movie> filter = queryFilter.and(filterGenre);
         filteredList.setPredicate(filter);
     }*/
+
 
 }
 

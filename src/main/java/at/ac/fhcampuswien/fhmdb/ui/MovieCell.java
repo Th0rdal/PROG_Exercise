@@ -1,5 +1,8 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
+import at.ac.fhcampuswien.fhmdb.ClickEventHandler;
+import at.ac.fhcampuswien.fhmdb.HomeController;
+import at.ac.fhcampuswien.fhmdb.UnexpectedListStateException;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -18,15 +21,18 @@ public class MovieCell extends ListCell<Movie> {
     private final Label detail = new Label();
     private final Label genre = new Label();
     private final JFXButton detailsButton = new JFXButton("Show details");
-    private final JFXButton addToWatchlistButton = new JFXButton("add to Watchlist");
+    private JFXButton addToWatchlistButton = new JFXButton("NONE");
     private final HBox inCellButtons = new HBox(title, detailsButton, addToWatchlistButton);
     private final HBox inCellLayout = new HBox(title, inCellButtons);
     private final VBox layout = new VBox(inCellLayout, detail, genre);
     private boolean showDetails = true;
+    private HomeController homeController;
 
-    public MovieCell() {
+    public MovieCell(HomeController homeController, ClickEventHandler clickEventHandler) {
         super();
 
+        this.homeController = homeController;
+        HomeController.ListState listState = this.homeController.getListState();
         this.detailsButton.setOnAction(actionEvent -> {
             if (this.showDetails) {
                 layout.getChildren().add(this.getDetails());
@@ -37,16 +43,10 @@ public class MovieCell extends ListCell<Movie> {
                 this.showDetails = true;
                 detailsButton.setText("Show Details");
             }
-
         });
 
         this.addToWatchlistButton.setOnAction(actionEvent -> {
-            WatchlistRepository watchlistRepository = new WatchlistRepository();
-            try {
-                watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(getItem()));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            clickEventHandler.onClick(getItem(), this.homeController);
         });
 
         // color scheme
@@ -80,30 +80,48 @@ public class MovieCell extends ListCell<Movie> {
         Label length = new Label("Length: " + getItem().getLengthInMinutes());
         Label rating = new Label("Rating: " + getItem().getRating()+"/10");
 
-        Label director = new Label("Directors: " + String.join(", ", getItem().getDirectors()));
-        Label writer = new Label("Directors: " + String.join(", ", getItem().getWriters()));
-        Label mainCast = new Label("Directors: " + String.join(", ", getItem().getMainCast()));
+        if (this.homeController.getListState() == HomeController.ListState.APIMOVIELIST) {
+            Label director = new Label("Directors: " + String.join(", ", getItem().getDirectors()));
+            Label writer = new Label("Directors: " + String.join(", ", getItem().getWriters()));
+            Label mainCast = new Label("Directors: " + String.join(", ", getItem().getMainCast()));
+            director.getStyleClass().add("text-white");
+            writer.getStyleClass().add("text-white");
+            mainCast.getStyleClass().add("text-white");
+            details.getChildren().add(director);
+            details.getChildren().add(writer);
+            details.getChildren().add(mainCast);
+        }
+
 
         releaseYear.getStyleClass().add("text-white");
         length.getStyleClass().add("text-white");
         rating.getStyleClass().add("text-white");
-        director.getStyleClass().add("text-white");
-        writer.getStyleClass().add("text-white");
-        mainCast.getStyleClass().add("text-white");
+
 
         details.getChildren().add(releaseYear);
         details.getChildren().add(length);
         details.getChildren().add(rating);
-        details.getChildren().add(director);
-        details.getChildren().add(writer);
-        details.getChildren().add(mainCast);
+
         return details;
 
     }
 
+    public void changeWatchlistButton() {
+        HomeController.ListState listState = this.homeController.getListState();
+        if (listState == HomeController.ListState.APIMOVIELIST) {
+            this.addToWatchlistButton.setText("add to Watchlist");
+        }else if (listState == HomeController.ListState.WATCHLIST) {
+            this.addToWatchlistButton.setText("remove");
+        }else {
+            throw new UnexpectedListStateException("Reached an unexpected ListState!");
+        }
+
+    }
     @Override
     protected void updateItem(Movie movie, boolean empty) {
         super.updateItem(movie, empty);
+
+        this.changeWatchlistButton();
 
         if (empty || movie == null) {
             setText(null);
@@ -121,6 +139,7 @@ public class MovieCell extends ListCell<Movie> {
                             ? movie.getGenres().toString()
                             : "No genres available"
             );
+
 
             title.fontProperty().set(title.getFont().font(20));
             detail.setMaxWidth(this.getScene().getWidth() - 30);
