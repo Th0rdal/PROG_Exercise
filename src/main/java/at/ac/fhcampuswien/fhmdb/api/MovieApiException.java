@@ -6,8 +6,7 @@ import javafx.scene.control.ButtonType;
 import java.io.IOException;
 
 public class MovieApiException extends IOException {
-        public MovieApiException(String message) {
-        Alert a = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-        a.show();
+    public MovieApiException(String message) {
+        new Alert(Alert.AlertType.ERROR, message, ButtonType.OK).show();
     }
 }

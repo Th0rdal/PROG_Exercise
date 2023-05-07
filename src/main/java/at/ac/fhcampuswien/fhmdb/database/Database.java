@@ -34,6 +34,7 @@ public class Database {
         }
         return instance;
     }
+
     public void createConnectionSource() throws SQLException {
         this.connectionSource = new JdbcConnectionSource(this.DB_URL, this.username, this.password);
     }

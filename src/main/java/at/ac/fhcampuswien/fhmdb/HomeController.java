@@ -80,24 +80,24 @@ public class HomeController implements Initializable {
         }
         this.sortMovies();
 
-        ClickEventHandler clickEventHandler = (clickedItem, homeController) -> {
+        ClickEventHandler<Movie> clickEventHandler = (clickedItem, homeController) -> {
             WatchlistRepository watchlistRepository = new WatchlistRepository();
             if (homeController.getListState() == ListState.APIMOVIELIST) {
                 try {
-                    watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity((Movie) clickedItem));
+                    watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(clickedItem));
             } catch (SQLException e) {
                 new DatabaseException("Error in trying to add a movie to the Watchlist");
             }
             }else if (homeController.getListState() == ListState.WATCHLIST) {
                 try {
-                    watchlistRepository.removeFromWatchlist(WatchlistEntity.convertMovieToWatchlistEntity((Movie) clickedItem));
+                    watchlistRepository.removeFromWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(clickedItem));
                 } catch (SQLException e) {
                     new DatabaseException("Error in trying to delete a movie from the Watchlist");
                 }
                 homeController.updateObservableMovieList();
             }
-
         };
+
         // initialize UI stuff
         movieListView.setCellFactory(movieListView -> new MovieCell(this, clickEventHandler)); // use custom cell factory to display data
         //System.out.println(this.getMostPopularActor(observableMovies));
@@ -223,6 +223,7 @@ public class HomeController implements Initializable {
         }
     }
     public void sortMovies() {
+        // fixme
         observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
         sortState = SortState.ASCENDING;
     }

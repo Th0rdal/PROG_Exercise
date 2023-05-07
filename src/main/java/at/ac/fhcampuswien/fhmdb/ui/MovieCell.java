@@ -18,26 +18,25 @@ public class MovieCell extends ListCell<Movie> {
     private final Label genre = new Label();
     private final JFXButton detailsButton = new JFXButton("Show details");
     private JFXButton addToWatchlistButton = new JFXButton("NONE");
-    private final HBox inCellButtons = new HBox(title, detailsButton, addToWatchlistButton);
+    private final HBox inCellButtons = new HBox(detailsButton, addToWatchlistButton);
     private final HBox inCellLayout = new HBox(title, inCellButtons);
     private final VBox layout = new VBox(inCellLayout, detail, genre);
-    private boolean showDetails = true;
+    private boolean showDetails = false;
     private HomeController homeController;
 
     public MovieCell(HomeController homeController, ClickEventHandler clickEventHandler) {
         super();
 
         this.homeController = homeController;
-        HomeController.ListState listState = this.homeController.getListState();
         this.detailsButton.setOnAction(actionEvent -> {
             if (this.showDetails) {
-                layout.getChildren().add(this.getDetails());
-                this.showDetails = false;
-                detailsButton.setText("Hide Details");
-            }else {
                 layout.getChildren().remove(3);
-                this.showDetails = true;
+                this.showDetails = false;
                 detailsButton.setText("Show Details");
+            }else {
+                layout.getChildren().add(this.getDetails());
+                this.showDetails = true;
+                detailsButton.setText("Hide Details");
             }
         });
 
@@ -76,6 +75,14 @@ public class MovieCell extends ListCell<Movie> {
         Label length = new Label("Length: " + getItem().getLengthInMinutes());
         Label rating = new Label("Rating: " + getItem().getRating()+"/10");
 
+        releaseYear.getStyleClass().add("text-white");
+        length.getStyleClass().add("text-white");
+        rating.getStyleClass().add("text-white");
+
+        details.getChildren().add(releaseYear);
+        details.getChildren().add(length);
+        details.getChildren().add(rating);
+
         if (this.homeController.getListState() == HomeController.ListState.APIMOVIELIST) {
             Label director = new Label("Directors: " + String.join(", ", getItem().getDirectors()));
             Label writer = new Label("Directors: " + String.join(", ", getItem().getWriters()));
@@ -87,16 +94,6 @@ public class MovieCell extends ListCell<Movie> {
             details.getChildren().add(writer);
             details.getChildren().add(mainCast);
         }
-
-
-        releaseYear.getStyleClass().add("text-white");
-        length.getStyleClass().add("text-white");
-        rating.getStyleClass().add("text-white");
-
-
-        details.getChildren().add(releaseYear);
-        details.getChildren().add(length);
-        details.getChildren().add(rating);
 
         return details;
 
@@ -111,8 +108,8 @@ public class MovieCell extends ListCell<Movie> {
         }else {
             throw new UnexpectedListStateException("Reached an unexpected ListState!");
         }
-
     }
+
     @Override
     protected void updateItem(Movie movie, boolean empty) {
         super.updateItem(movie, empty);

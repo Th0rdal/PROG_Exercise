@@ -8,15 +8,24 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WatchlistEntity {
-    //TODO Implement
     @DatabaseField(generatedId = true)
     private long id;
     @DatabaseField
     private String apiId;
-
-    public long getId() {
-        return id;
-    }
+    @DatabaseField
+    private String title;
+    @DatabaseField
+    private String description;
+    @DatabaseField
+    private String genres;
+    @DatabaseField
+    private int releaseYear;
+    @DatabaseField
+    private String imgUrl;
+    @DatabaseField
+    private int lengthInMinutes;
+    @DatabaseField
+    private double rating;
 
     public String getApiId() {
         return apiId;
@@ -46,20 +55,7 @@ public class WatchlistEntity {
         return rating;
     }
 
-    @DatabaseField
-    private String title;
-    @DatabaseField
-    private String description;
-    @DatabaseField
-    private String genres;
-    @DatabaseField
-    private int releaseYear;
-    @DatabaseField
-    private String imgUrl;
-    @DatabaseField
-    private int lengthInMinutes;
-    @DatabaseField
-    private double rating;
+    public String getTitle() {return this.title;}
 
     public WatchlistEntity() {}
     public WatchlistEntity(String apiId, String title, String description, String genres, int releaseYear, String imgUrl, int lengthInMinutes, double rating) {
@@ -73,7 +69,6 @@ public class WatchlistEntity {
         this.rating = rating;
     }
 
-    public String getTitle() {return this.title;}
     public static String genresToString(List<Genre> genres) {
         StringBuilder temp = new StringBuilder();
         for (Genre tempGenre: genres) {
