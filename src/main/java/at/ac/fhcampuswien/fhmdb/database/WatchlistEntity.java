@@ -6,7 +6,6 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class WatchlistEntity {
     //TODO Implement
