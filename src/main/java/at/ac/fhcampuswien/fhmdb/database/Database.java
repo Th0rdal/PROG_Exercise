@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class Database {
 
     private final String DB_URL = "jdbc:h2:file: ./db/moviesDB";
-    private final String username = "user";
+    private final String username = "use";
     private final String password = "passwort";
     private ConnectionSource connectionSource;
     private Dao<WatchlistEntity, Long> dao;
@@ -24,7 +24,7 @@ public class Database {
             this.dao = DaoManager.createDao(this.connectionSource, WatchlistEntity.class);
             this.createTables();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            new DatabaseException("Error in trying to connect to the database");
         }
     }
 
