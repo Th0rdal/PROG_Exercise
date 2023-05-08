@@ -20,7 +20,7 @@ public class WatchlistRepository {
     }
 
     public void removeFromWatchlist(WatchlistEntity movie) throws SQLException {
-        dao.delete(dao.queryForEq("title", movie.getTitle()));
+        dao.delete(dao.queryForEq("id", movie.getApiId()));
     }
 
     public List<WatchlistEntity> getAll() throws SQLException {
