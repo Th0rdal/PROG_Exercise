@@ -15,7 +15,9 @@ public class FhmdbApplication extends Application {
     @Override
     public void start(Stage stage) {
         try{
+            ControllerFactory controllerFactory = new ControllerFactory();
             FXMLLoader fxmlLoader = new FXMLLoader(FhmdbApplication.class.getResource("home-view.fxml"));
+            fxmlLoader.setControllerFactory(controllerFactory);
             Scene scene = new Scene(fxmlLoader.load(), 840, 620);
             scene.getStylesheets().add(Objects.requireNonNull(FhmdbApplication.class.getResource("styles.css")).toExternalForm());
             stage.setTitle("FHMDb");

@@ -3,7 +3,7 @@ package at.ac.fhcampuswien.fhmdb.api;
 public class MovieApiRequestBuilder {
 
     private StringBuilder url;
-    boolean firstQuery = true;
+    private boolean firstQuery = true;
 
     public MovieApiRequestBuilder(String base) {
         this.url = new StringBuilder(base);
