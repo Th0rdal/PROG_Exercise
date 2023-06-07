@@ -22,7 +22,7 @@ public class MovieAPI {
         this.gson = gsonBuilder.create();
     }
     public List<Movie> getFullMovieList() throws IOException {
-        String url = baseURL + "/movies";
+        String url = new MovieApiRequestBuilder("https://prog2.fh-campuswien.ac.at/movies").build();
         Request request = new Request.Builder().url(url).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
         try(Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
@@ -33,7 +33,7 @@ public class MovieAPI {
     }
 
     public List<Movie> getFilteredMovieList(String searchText, Genre genre, String releaseYear, String rating) throws IOException {
-        boolean firstQuery = true;
+        /*boolean firstQuery = true;
         StringBuilder url = new StringBuilder(this.baseURL + "/movies");
         if (!searchText.equals("")) {
             if (firstQuery) {
@@ -70,8 +70,16 @@ public class MovieAPI {
             }
             url.append("ratingFrom=").append(Double.parseDouble(rating));
         }
+        System.out.println(url);*/
+
+        String url = new MovieApiRequestBuilder("https://prog2.fh-campuswien.ac.at/movies")
+                .query(searchText)
+                .genre(genre.toString())
+                .releaseYear(releaseYear)
+                .rating(rating)
+                .build();
         System.out.println(url);
-        Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
+        Request request = new Request.Builder().url(url).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
         try (Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
             Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
@@ -79,6 +87,3 @@ public class MovieAPI {
         }
     }
 }
-
-/*
- */
