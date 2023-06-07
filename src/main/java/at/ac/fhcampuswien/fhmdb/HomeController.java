@@ -7,6 +7,8 @@ import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.observe.Observable;
+import at.ac.fhcampuswien.fhmdb.observe.ObservableMessages;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -15,6 +17,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
@@ -24,7 +28,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.observe.Observer {
     @FXML
     public JFXButton searchBtn;
 
@@ -54,6 +58,8 @@ public class HomeController implements Initializable {
     private final WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
     @FXML
     public AnchorPane anchorPane;
+
+
     public enum SortState {
         NONE,
         ASCENDING,
@@ -70,8 +76,18 @@ public class HomeController implements Initializable {
     public MovieAPI movieAPI = new MovieAPI();
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void update(ObservableMessages message) {
+        if (message == ObservableMessages.ADDED) {
+            new Alert(Alert.AlertType.INFORMATION, "Movie was successfully added to the Watchlist", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING, "Movie already is in Watchlist", ButtonType.OK).show();
+        }
 
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        WatchlistRepository.getWatchlistRepository().addObserver(this);
         //preparing the movie list
         try {
             this.initializeMovies(null);
