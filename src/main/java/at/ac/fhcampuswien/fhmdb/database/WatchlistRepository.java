@@ -8,9 +8,17 @@ import java.util.List;
 public class WatchlistRepository {
 
     private Dao<WatchlistEntity, Long> dao;
+    private static WatchlistRepository instance = null;
 
-    public WatchlistRepository() {
+    private WatchlistRepository() {
         this.dao = Database.getDatabase().getDao();
+    }
+
+    public static WatchlistRepository getWatchlistRepository() {
+        if (WatchlistRepository.instance == null) {
+            WatchlistRepository.instance = new WatchlistRepository();
+        }
+        return WatchlistRepository.instance;
     }
 
     public void addToWatchlist(WatchlistEntity movie) throws SQLException {

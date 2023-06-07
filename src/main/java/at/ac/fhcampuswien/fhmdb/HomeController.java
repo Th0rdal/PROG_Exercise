@@ -51,7 +51,7 @@ public class HomeController implements Initializable {
     public ObservableList<Movie> saveListMovies = FXCollections.observableArrayList();
     @FXML
     public JFXButton changeListButton;
-    private final WatchlistRepository watchlistRepository = new WatchlistRepository();
+    private final WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
     @FXML
     public AnchorPane anchorPane;
     public enum SortState {
@@ -81,7 +81,7 @@ public class HomeController implements Initializable {
         this.sortMovies();
 
         ClickEventHandler<Movie> clickEventHandler = (clickedItem, homeController) -> {
-            WatchlistRepository watchlistRepository = new WatchlistRepository();
+            WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
             if (homeController.getListState() == ListState.APIMOVIELIST) {
                 try {
                     watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(clickedItem));
