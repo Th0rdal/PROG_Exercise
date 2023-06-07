@@ -35,7 +35,7 @@ public class WatchlistRepository implements at.ac.fhcampuswien.fhmdb.observe.Obs
     }
 
     public void removeFromWatchlist(WatchlistEntity movie) throws SQLException {
-        dao.delete(dao.queryForEq("id", movie.getApiId()));
+        dao.delete(dao.queryForEq("APIID", movie.getApiId()));
     }
 
     public List<WatchlistEntity> getAll() throws SQLException {
