@@ -1,4 +1,7 @@
 
+.background-white {
+    -fx-background-color: #ffffff;
+}
 .background-yellow {
     -fx-background-color: #f5c518;
 }
