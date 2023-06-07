@@ -1,19 +1,55 @@
 package at.ac.fhcampuswien.fhmdb.models;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
+
+import java.io.IOException;
 import java.util.List;
 
 public class Movie {
-    private String title;
-    private String description;
-    private List<Genre> genres;
+    public String title;
+    public String description;
+    public List<Genre> genres;
+    public int releaseYear;
+    public String id;
+    public String imgURL;
+    public int lengthInMinutes;
+    public List<String> directors;
+    public List<String> writers;
+    public List<String> mainCast;
+    public double rating;
 
     public Movie(String title, String description, List<Genre> genres) {
         this.title = title;
         this.description = description;
         this.genres = genres;
     }
+
+    public Movie(String title, String description, List<Genre> genres, int releaseYear, String id, String imgURL, int lengthInMinutes, double rating) {
+        this.title = title;
+        this.description = description;
+        this.genres = genres;
+        this.releaseYear = releaseYear;
+        this.id = id;
+        this.imgURL = imgURL;
+        this.lengthInMinutes = lengthInMinutes;
+        this.rating = rating;
+    }
+
+    public Movie(String title, String description, List<Genre> genres, int releaseYear, String id, String imgURL, int lengthInMinutes, List<String> directors, List<String> writers, List<String> mainCast, double rating) {
+        this.title = title;
+        this.description = description;
+        this.genres = genres;
+        this.releaseYear = releaseYear;
+        this.id = id;
+        this.imgURL = imgURL;
+        this.lengthInMinutes = lengthInMinutes;
+        this.directors = directors;
+        this.writers = writers;
+        this.mainCast = mainCast;
+        this.rating = rating;
+
+    }
+
 
     @Override  // Methode to compare to movies.
     public boolean equals(Object o){
@@ -36,43 +72,45 @@ public class Movie {
     }
 
     public List<Genre> getGenres (){return genres;}
+    public int getLengthInMinutes() {return this.lengthInMinutes;}
+    public List<String> getWriters() {return this.writers;}
+    public List<String> getDirectors(){return this.directors;}
+    public int getReleaseYear() {return this.releaseYear;}
+    public double getRating() {return this.rating;}
+    public List<String> getMainCast() {return this.mainCast;}
+    public String getID() {return this.id;}
+    public String getImgUrl() {return this.imgURL;}
+    public void displayOnConsole() {
+        StringBuilder display = new StringBuilder();
+        display.append("Movie ID: ")
+                .append(this.id)
+                .append("\nTitle: ")
+                .append(this.title)
+                .append("\nDescription: ")
+                .append(this.description)
+                .append("\nGenres:")
+                .append(this.genres.toString())
+                .append("\nLength: ")
+                .append(this.lengthInMinutes)
+                .append("\nRelease Year: ")
+                .append(this.releaseYear)
+                .append("\nWriters: ")
+                .append(this.writers.toString())
+                .append("\nDirectors: ")
+                .append(this.directors.toString())
+                .append("\nMaincast: ")
+                .append(this.mainCast.toString())
+                .append("\nrating: ")
+                .append(this.rating)
+                .append("\nimage URL: ")
+                .append(this.imgURL)
+                .append("\n");
+        System.out.println(display.toString());
 
-    public static List<Movie> initializeMovies(){
-        List<Movie> movies = new ArrayList<>();
-        movies.add(new Movie(
-                "Bamboo House",
-                "Movie about the struggle of the chinese resistance in wwII.",
-                Arrays.asList(Genre.DRAMA, Genre.ROMANCE)
-        ));
+    }
 
-        movies.add(new Movie(
-                "Death Race 2000",
-                "Race through the United States in the far distant future of the year 2000",
-                Arrays.asList(Genre.ADVENTURE, Genre.ACTION)
-        ));
-
-        movies.add(new Movie(
-                "Generic Movie",
-                "The most generic movie ever made.",
-                Arrays.asList(Genre.COMEDY, Genre.CRIME)
-        ));
-
-        movies.add(new Movie("Scooby-Doo", "A speaking dog and a guy on drugs.",
-                Arrays.asList(Genre.COMEDY, Genre.ANIMATION)
-        ));
-
-        movies.add(new Movie("The Room", "I did not hit her. I did not. Oh, hi Mark.",
-                Arrays.asList(Genre.MUSICAL, Genre.ROMANCE)
-        ));
-
-        movies.add(new Movie("Attack of the killer Tomatoes.", "True story over the process of making Heinz Ketchup.",
-                Arrays.asList(Genre.DOCUMENTARY, Genre.ADVENTURE)
-        ));
-
-        movies.add(new Movie("Kung Pow (Chicken): Enter the fist.", "Is it a movie or a dish?",
-                Arrays.asList(Genre.BIOGRAPHY, Genre.SPORT)
-        ));
-
-        return movies;
+    public static List<Movie> initializeMovies() throws IOException {
+        MovieAPI movieAPI = new MovieAPI();
+        return movieAPI.getFullMovieList();
     }
 }
