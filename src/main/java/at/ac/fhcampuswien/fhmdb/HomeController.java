@@ -54,6 +54,9 @@ public class HomeController implements Initializable {
     private final WatchlistRepository watchlistRepository = new WatchlistRepository();
     @FXML
     public AnchorPane anchorPane;
+
+
+    private MovieSorter movieSorter  = new MovieSorter();
     public enum SortState {
         NONE,
         ASCENDING,
@@ -156,7 +159,7 @@ public class HomeController implements Initializable {
         });
 
         // Sort button example:
-        sortBtn.setOnAction(actionEvent -> this.reverseMovies());
+        sortBtn.setOnAction(actionEvent -> this.sortMovies());
 
         changeListButton.setOnAction(actionEvent -> {
             if (this.listState == ListState.WATCHLIST) {
@@ -222,12 +225,29 @@ public class HomeController implements Initializable {
             this.ratingComboBox.getSelectionModel().select(currentRating);
         }
     }
-    public void sortMovies() {
+   /* public void sortMovies() {
         // fixme
         observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
         sortState = SortState.ASCENDING;
+    } */
+
+    public void sortMovies(){
+        if (sortState == SortState.NONE || sortState == SortState.DESCENDING) {
+            //sortMovies(SortedState.ASCENDING);
+            movieSorter.setState( new AscendingState());
+            movieSorter.sortMovies(observableMovies);
+            sortState = SortState.ASCENDING;
+
+        } else if (sortState == SortState.ASCENDING) {
+            // sortMovies(SortedState.DESCENDING);
+            movieSorter.setState( new DescendingState());
+            movieSorter.sortMovies(observableMovies);
+            sortState = SortState.DESCENDING;
+
+        }
     }
 
+/*
     public void reverseMovies(){
         if (this.sortState == SortState.ASCENDING) {
             FXCollections.reverse(observableMovies);
@@ -240,7 +260,7 @@ public class HomeController implements Initializable {
         }else {
             throw new UnexpectedSortStateException("Error: sortState is \"" + sortState.toString() + "\"! Expected \"ASCENDING\" or \"DESCENDING\"!");
         }
-    }
+    } */
 
     public String getMostPopularActor(List<Movie> movies) {
         Map<String, Integer> mainCastMap = new HashMap<>();
