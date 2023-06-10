@@ -7,7 +7,6 @@ import at.ac.fhcampuswien.fhmdb.database.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-import at.ac.fhcampuswien.fhmdb.observe.Observable;
 import at.ac.fhcampuswien.fhmdb.observe.ObservableMessages;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
@@ -72,7 +71,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
     }
     private ListState listState = ListState.NONE;
 
-    public SortState sortState = SortState.NONE;
+    public SortState sortState;
     public MovieAPI movieAPI = new MovieAPI();
 
     @Override
@@ -82,7 +81,6 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
         }else {
             new Alert(Alert.AlertType.WARNING, "Movie already is in Watchlist", ButtonType.OK).show();
         }
-
     }
 
     @Override
@@ -94,7 +92,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
         } catch (IOException e) {
             new MovieApiException("Error in fetching the movies from the API. Check if you have internet connection!");
         }
-        this.sortMovies();
+        this.initializeSortState();
 
         ClickEventHandler<Movie> clickEventHandler = (clickedItem, homeController) -> {
             WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
@@ -139,6 +137,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
             if (this.listState == ListState.APIMOVIELIST) {
                 try {
                     observableMovies.setAll(this.movieAPI.getFilteredMovieList(searchField.getText(), genreComboBox.getValue(), yearComboBox.getValue(), ratingComboBox.getValue()));
+                    stateHandler();
                     observableMovies.forEach(Movie::displayOnConsole);
                     this.updateComboBoxes();
                 } catch (IOException e) {
@@ -172,7 +171,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
         });
 
         // Sort button example:
-        sortBtn.setOnAction(actionEvent -> this.reverseMovies());
+        sortBtn.setOnAction(actionEvent -> this.stateHandler());
 
         changeListButton.setOnAction(actionEvent -> {
             if (this.listState == ListState.WATCHLIST) {
@@ -184,7 +183,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
                     this.observableMovies.setAll(this.saveListMovies);
                 }
                 this.updateComboBoxes();
-                this.sortMovies();
+                this.initializeSortState();
                 this.changeListButton.setText("Watchlist");
             }else {
                 this.listState = ListState.WATCHLIST;
@@ -206,7 +205,7 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
             new DatabaseException("Error in fetching elements from the database");
         }
         this.updateComboBoxes();
-        this.sortMovies();
+        this.initializeSortState();
     }
 
     public void initializeMovies(ObservableList<Movie> movieList) throws IOException {
@@ -238,14 +237,17 @@ public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.o
             this.ratingComboBox.getSelectionModel().select(currentRating);
         }
     }
-    public void sortMovies() {
-        // fixme
-        observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
-        sortState = SortState.ASCENDING;
+    public void initializeSortState() {
+        this.sortState = SortState.NONE;
+        this.sortBtn.setText("not sorted");
     }
 
-    public void reverseMovies(){
-        if (this.sortState == SortState.ASCENDING) {
+    public void stateHandler(){
+        if (this.sortState == SortState.NONE) {
+            observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
+            sortState = SortState.ASCENDING;
+            this.sortBtn.setText("Sort (asc)");
+        }else if (this.sortState == SortState.ASCENDING) {
             FXCollections.reverse(observableMovies);
             this.sortState = SortState.DESCENDING;
             this.sortBtn.setText("Sort (desc)");
