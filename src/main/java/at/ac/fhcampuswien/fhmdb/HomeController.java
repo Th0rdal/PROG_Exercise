@@ -8,11 +8,15 @@ import at.ac.fhcampuswien.fhmdb.database.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
+import at.ac.fhcampuswien.fhmdb.observe.Observable;
+import at.ac.fhcampuswien.fhmdb.observe.ObservableMessages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -24,7 +28,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, at.ac.fhcampuswien.fhmdb.observe.Observer {
     @FXML
     public JFXButton searchBtn;
 
@@ -51,7 +55,7 @@ public class HomeController implements Initializable {
     public ObservableList<Movie> saveListMovies = FXCollections.observableArrayList();
     @FXML
     public JFXButton changeListButton;
-    private final WatchlistRepository watchlistRepository = new WatchlistRepository();
+    private final WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
     @FXML
     public AnchorPane anchorPane;
 
@@ -73,7 +77,18 @@ public class HomeController implements Initializable {
     public MovieAPI movieAPI = new MovieAPI();
 
     @Override
+    public void update(ObservableMessages message) {
+        if (message == ObservableMessages.ADDED) {
+            new Alert(Alert.AlertType.INFORMATION, "Movie was successfully added to the Watchlist", ButtonType.OK).show();
+        }else {
+            new Alert(Alert.AlertType.WARNING, "Movie already is in Watchlist", ButtonType.OK).show();
+        }
+
+    }
+
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        WatchlistRepository.getWatchlistRepository().addObserver(this);
 
         //preparing the movie list
         try {
@@ -84,7 +99,7 @@ public class HomeController implements Initializable {
         this.sortMovies();
 
         ClickEventHandler<Movie> clickEventHandler = (clickedItem, homeController) -> {
-            WatchlistRepository watchlistRepository = new WatchlistRepository();
+            WatchlistRepository watchlistRepository = WatchlistRepository.getWatchlistRepository();
             if (homeController.getListState() == ListState.APIMOVIELIST) {
                 try {
                     watchlistRepository.addToWatchlist(WatchlistEntity.convertMovieToWatchlistEntity(clickedItem));
@@ -225,12 +240,16 @@ public class HomeController implements Initializable {
             this.ratingComboBox.getSelectionModel().select(currentRating);
         }
     }
+
+
    /* public void sortMovies() {
         // fixme
         observableMovies.sort(Comparator.comparing(Movie::getTitle));   //sort the list ascending
         sortState = SortState.ASCENDING;
     } */
 
+
+    //TODO sortMovies
     public void sortMovies(){
         if (sortState == SortState.NONE || sortState == SortState.DESCENDING) {
             //sortMovies(SortedState.ASCENDING);
